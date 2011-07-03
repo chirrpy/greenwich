@@ -100,7 +100,7 @@ And again, asking Greenwich for the value of `start` will result in:
 Issues
 ------
 
-If you have problems, please create a [Github issue](https://github.com/jfelchner/validates_truthiness/issues).
+If you have problems, please create a [Github issue](https://github.com/jfelchner/greenwich/issues).
 
 Credits
 -------
