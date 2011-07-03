@@ -31,13 +31,14 @@ You add Greenwich to your models like so:
 
     date_with_time_zone :field_name
 
-By default Greenwich looks for a few different columns in your model depending on the
-field name you passed in.  Let's look at some examples.
-
 Meta-Programming Magic
 --------------------------------
 
-** DateTime Field Lookup **
+By default Greenwich looks for a few different columns in your model depending on the
+field name you passed in.  Let's look at some examples.
+
+**DateTime Field Lookup**
+
 Greenwich will lookup `:field_name` based on a couple different standard column suffixes.
 
   * `_at`
@@ -49,7 +50,8 @@ For example, if you specify:
 
 Greenwich will look for the columns `start_at` and `start_datetime` (in that order).
 
-** Time Zone Field Lookup **
+**Time Zone Field Lookup**
+
 Time Zone lookups default to a per-field or per-model specification.  If you specify:
 
     date_with_time_zone :start
