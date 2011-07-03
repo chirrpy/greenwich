@@ -61,9 +61,9 @@ find a field by that name, it will use `:time_zone`.
 
 Usage
 --------------------------------
-  * Note: These examples assume the application's default time zone is set to UTC.
+  * **Note:** _These examples assume the application's default time zone is set to UTC.
     If you have modified the default time zone, directly accessing your DateTime field
-    will render it in _that_ time zone and not UTC.
+    will render it in _that_ time zone and not UTC._
 
 When working with your instances, Greenwich will convert to the proper time zone when
 you access it.  So if you've previously saved a DateTime like this:
@@ -107,12 +107,12 @@ Credits
 
 ![thekompanee](http://www.thekompanee.com/public_files/kompanee-github-readme-logo.png)
 
-validates_truthiness is maintained by [The Kompanee, Ltd.](http://www.thekompanee.com)
+greenwich is maintained by [The Kompanee, Ltd.](http://www.thekompanee.com)
 
 The names and logos for The Kompanee are trademarks of The Kompanee, Ltd.
 
 License
 -------
 
-validates_truthiness is Copyright &copy; 2011 The Kompanee. It is free software, and may be redistributed under the terms specified in the LICENSE file.
+greenwich is Copyright &copy; 2011 The Kompanee. It is free software, and may be redistributed under the terms specified in the LICENSE file.
 
