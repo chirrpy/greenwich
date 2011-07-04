@@ -28,6 +28,8 @@ Gem::Specification.new do |s|
   s.require_paths     = ["lib"]
   #= Manifest =#
 
+  s.add_dependency('activerecord', '~> 3.0.7')
+
   s.add_development_dependency('bundler',   '~> 1.0.15')
   s.add_development_dependency('rspec',     '~> 2.6.0')
   s.add_development_dependency('yard',      '~> 0.7.1')
