@@ -52,7 +52,8 @@ module Greenwich  #:nodoc:
         options[:for].map! { |v| [v, Greenwich::Utilities.get_time_field(v, column_names)] }
 
         define_method "#{name}" do
-          ActiveSupport::TimeZone.new(read_attribute(name))
+          time_zone_name = read_attribute(name)
+          ActiveSupport::TimeZone.new(time_zone_name) unless time_zone_name.nil?
         end
 
         define_method "#{name}=" do |time_zone|
