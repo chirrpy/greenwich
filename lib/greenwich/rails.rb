@@ -1,46 +1,70 @@
 require  'greenwich'
 
 module Greenwich  #:nodoc:
-  module Aggregations #:nodoc:
-    module ActiveRecord #:nodoc:
-      def self.included(base) #:nodoc:
-        base.extend ClassMethods
-      end
+  module Conversion #:nodoc:
+    def self.included(base) #:nodoc:
+      base.extend ClassMethods
+    end
 
-      module ClassMethods
-        def date_with_time_zone(name, options = {})
-          options = { :time => time_field_name(name), :time_zone => time_zone_field_name(name), :allow_nil => true }.merge options
+    module ClassMethods
+      def time_with_custom_time_zone(name, options = {})
+        time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
+        time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
-          mapping =  [ [options[:time], 'in_time_zone'], [options[:time_zone], 'zone'] ]
+        skip_time_zone_conversion_for_attributes << time_field
 
-          composed_of name,
-                      :class_name => 'Time',
-                      :mapping => mapping,
-                      :allow_nil => options[:allow_nil],
-                      :constructor => Proc.new { |time, time_zone|
-                        time.in_time_zone(time_zone)
-                      },
-                      :converter => Proc.new { |value|
-                        raise(ArgumentError, "Can't convert #{value.class} to Time") unless value.respond_to?(:to_time)
+        mapping = [ [time_field, 'truncated_time_as_string'], [time_zone_field, 'time_zone_name'] ]
 
-                        value.to_time
-                      }
-        end
+        composed_of name,
+                    :class_name => 'ActiveSupport::TimeWithZone',
+                    :mapping => mapping,
+                    :allow_nil => true,
+                    :constructor => Proc.new { |time, time_zone|
+                      time_zone = ActiveSupport::TimeZone.new(time_zone) unless time_zone.is_a? ActiveSupport::TimeZone
+                      time = time.to_time
 
-      private
-        def time_field_name(name)
-          if self.column_names.include? "#{name}_at"
-            "#{name}_at".to_sym
-          elsif self.column_names.include? "#{name}_datetime"
-            "#{name}_datetime".to_sym
+                      ActiveSupport::TimeWithZone.new(nil, time_zone, time)
+                    },
+                    :converter => Proc.new { |value|
+                      value[1] = ActiveSupport::TimeZone.new(value[1]) unless value[1].is_a? ActiveSupport::TimeZone
+                      value[0] = value[0].to_time
+
+                      ActiveSupport::TimeWithZone.new(nil, value[1], value[0])
+                    }
+
+        define_method "#{time_field}=" do |time|
+          instance_eval do
+            time_zone = read_attribute(time_zone)
+
+            if time_zone.nil?
+              write_attribute(time_field, time.to_s)
+            else
+              self.send("#{name}=".to_sym, [time, time_zone])
+            end
           end
         end
 
-        def time_zone_field_name(name)
-          if self.column_names.include? "#{name}_time_zone"
-            "#{name}_time_zone".to_sym
-          elsif self.column_names.include? "time_zone"
-            "time_zone".to_sym
+        time_zone "#{name}_time_zone".to_sym, :for => name.to_sym if options[:time_zone] == time_zone_field
+      end
+
+      def time_zone(name, options = {})
+        options[:for] = [options[:for]].compact unless options[:for].is_a? Array
+        options[:for].map! { |v| [v, Greenwich::Utilities.get_time_field(v, column_names)] }
+
+        define_method "#{name}" do
+          ActiveSupport::TimeZone.new(read_attribute(name))
+        end
+
+        define_method "#{name}=" do |time_zone|
+          instance_eval do
+            time_zone = ActiveSupport::TimeZone.new(time_zone) unless time_zone.is_a? ActiveSupport::TimeZone || time_zone.nil?
+            time_zone = time_zone.name if time_zone.respond_to? :name
+            write_attribute(name, time_zone)
+
+            options[:for].each do |composed_field, time_field|
+              time = read_attribute(time_field)
+              self.send("#{composed_field}=".to_sym, [time, time_zone]) unless time.nil?
+            end
           end
         end
       end
@@ -48,4 +72,4 @@ module Greenwich  #:nodoc:
   end
 end
 
-ActiveRecord::Base.send :include, Greenwich::Aggregations::ActiveRecord
+ActiveRecord::Base.send :include, Greenwich::Conversion
