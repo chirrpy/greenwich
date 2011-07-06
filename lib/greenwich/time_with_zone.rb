@@ -18,6 +18,10 @@ module ActiveSupport
   end
 
   class TimeZone
+    def to_s
+      name
+    end
+
     def freeze
       tzinfo; utc_offset;
       super
