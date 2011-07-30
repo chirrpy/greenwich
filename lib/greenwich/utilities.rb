@@ -13,6 +13,8 @@ module Greenwich
     end
 
     def self.get_time_zone_from(value)
+      return nil if [nil, ''].includes? value
+
       begin
         value = ActiveSupport::TimeZone.new(value) unless value.is_a? ActiveSupport::TimeZone
       rescue ArgumentError
