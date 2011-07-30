@@ -34,13 +34,10 @@ module Greenwich  #:nodoc:
 
         define_method "#{time_field}=" do |time|
           instance_eval do
-            time_zone = read_attribute(time_zone)
             write_attribute(time_field, time.to_s)
 
-            if time_zone.nil?
-            else
-              self.send("#{name}=".to_sym, [time, time_zone])
-            end
+            time_zone = read_attribute(time_zone)
+            self.send("#{name}=".to_sym, [time, time_zone]) if time && time_zone
           end
         end
 
@@ -63,7 +60,7 @@ module Greenwich  #:nodoc:
 
             options[:for].each do |composed_field, time_field|
               time = read_attribute(time_field)
-              self.send("#{composed_field}=".to_sym, [time, time_zone]) unless time.nil?
+              self.send("#{composed_field}=".to_sym, [time, time_zone]) if time && time_zone
             end
           end
         end
