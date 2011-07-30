@@ -35,9 +35,9 @@ module Greenwich  #:nodoc:
         define_method "#{time_field}=" do |time|
           instance_eval do
             time_zone = read_attribute(time_zone)
+            write_attribute(time_field, time.to_s)
 
             if time_zone.nil?
-              write_attribute(time_field, time.to_s)
             else
               self.send("#{name}=".to_sym, [time, time_zone])
             end
