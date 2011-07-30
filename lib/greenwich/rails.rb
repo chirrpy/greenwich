@@ -26,9 +26,7 @@ module Greenwich  #:nodoc:
                       ActiveSupport::TimeWithZone.new(nil, time_zone, time)
                     },
                     :converter => Proc.new { |value|
-                      raise ArgumentError, "You must pass an object that can be sent to ActiveSupport::TimeZone#new when setting this field (ie: field_name = [Time.now, 'CDT'])" if value[1].nil?
-
-                      value[1] = ActiveSupport::TimeZone.new(value[1]) unless value[1].is_a? ActiveSupport::TimeZone
+                      value[1] = Greenwich::Utilities.get_time_zone_from(value[1])
                       value[0] = value[0].to_time
 
                       ActiveSupport::TimeWithZone.new(nil, value[1], value[0])
@@ -58,12 +56,9 @@ module Greenwich  #:nodoc:
           ActiveSupport::TimeZone.new(time_zone_name) unless time_zone_name.nil?
         end
 
-        define_method "#{name}=" do |time_zone|
+        define_method "#{name}=" do |time_zone_string|
           instance_eval do
-            raise ArgumentError, "You can't set this #{name} to nil.  Greenwich is used for working with times and zones.  If you don't need time zones, use a standard Ruby Time object instead." if time_zone.nil?
-
-            time_zone = ActiveSupport::TimeZone.new(time_zone) unless time_zone.is_a? ActiveSupport::TimeZone || time_zone.nil?
-            time_zone = time_zone.name if time_zone.respond_to? :name
+            time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_string).try(:name)
             write_attribute(name, time_zone)
 
             options[:for].each do |composed_field, time_field|
