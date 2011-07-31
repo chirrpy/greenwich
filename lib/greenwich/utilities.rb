@@ -18,7 +18,7 @@ module Greenwich
       begin
         value = ActiveSupport::TimeZone.new(value) unless value.is_a? ActiveSupport::TimeZone
       rescue ArgumentError
-        raise ArgumentError, "#{value} cannot be converted into a TimeZone."
+        raise ArgumentError, "'#{value}' cannot be converted into a TimeZone."
       end
 
       value
