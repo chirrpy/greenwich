@@ -44,6 +44,19 @@ module Greenwich  #:nodoc:
         time_zone "#{name}_time_zone".to_sym, :for => name.to_sym if options[:time_zone] == time_zone_field
       end
 
+      def time_with_static_time_zone(name, options = {})
+        define_method "#{name}" do
+          time_field  = Greenwich::Utilities.get_time_field(name, self.class.column_names)
+
+          instance_eval do
+            time      = send(time_field.to_sym)
+            time_zone = Greenwich::Utilities.get_time_zone_from(send(options[:time_zone]))
+
+            ActiveSupport::TimeWithZone.new(nil, time_zone, time)
+          end
+        end
+      end
+
       def time_zone(name, options = {})
         options[:for] = [options[:for]].compact unless options[:for].is_a? Array
         options[:for].map! { |v| [v, Greenwich::Utilities.get_time_field(v, column_names)] }
