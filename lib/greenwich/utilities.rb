@@ -13,15 +13,11 @@ module Greenwich
     end
 
     def self.get_time_zone_from(value)
-      return nil if [nil, ''].include? value
+      return nil   if value.nil?
 
-      begin
-        value = ActiveSupport::TimeZone.new(value) unless value.is_a? ActiveSupport::TimeZone
-      rescue ArgumentError
-        raise ArgumentError, "'#{value}' cannot be converted into a TimeZone."
-      end
+      return value if value.is_a? ActiveSupport::TimeZone
 
-      value
+      ActiveSupport::TimeZone.new(value)
     end
 
   private
