@@ -1,5 +1,5 @@
 require "greenwich/version"
 require "greenwich/utilities"
 require "greenwich/time_with_zone"
-require "greenwich/rails"
+require "greenwich/conversion"
 
