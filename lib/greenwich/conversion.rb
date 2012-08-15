@@ -9,8 +9,6 @@ module Greenwich  #:nodoc:
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
         time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
-        skip_time_zone_conversion_for_attributes << time_field
-
         define_method "#{time_field}=" do |time|
           instance_eval do
             write_attribute(time_field, time.to_s)
