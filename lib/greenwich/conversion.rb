@@ -81,5 +81,3 @@ module Greenwich  #:nodoc:
     end
   end
 end
-
-ActiveRecord::Base.send :include, Greenwich::Conversion
