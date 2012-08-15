@@ -1,5 +1,3 @@
-require  'greenwich'
-
 module Greenwich  #:nodoc:
   module Conversion #:nodoc:
     def self.included(base) #:nodoc:
