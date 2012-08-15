@@ -11,25 +11,6 @@ module Greenwich  #:nodoc:
 
         skip_time_zone_conversion_for_attributes << time_field
 
-        mapping = [ [time_field, 'truncated_time_as_string'], [time_zone_field, 'time_zone_name'] ]
-
-        composed_of name,
-                    :class_name => 'ActiveSupport::TimeWithZone',
-                    :mapping => mapping,
-                    :allow_nil => true,
-                    :constructor => Proc.new { |time, time_zone|
-                      time_zone = ActiveSupport::TimeZone.new(time_zone) unless time_zone.is_a? ActiveSupport::TimeZone
-                      time = time.to_time
-
-                      ActiveSupport::TimeWithZone.new(nil, time_zone, time)
-                    },
-                    :converter => Proc.new { |value|
-                      value[1] = Greenwich::Utilities.get_time_zone_from(value[1])
-                      value[0] = value[0].to_time
-
-                      ActiveSupport::TimeWithZone.new(nil, value[1], value[0])
-                    }
-
         define_method "#{time_field}=" do |time|
           instance_eval do
             write_attribute(time_field, time.to_s)
