@@ -11,10 +11,16 @@ module Greenwich  #:nodoc:
 
         define_method "#{time_field}=" do |time|
           instance_eval do
-            write_attribute(time_field, time.to_s)
+            time_zone_value = self.send(time_zone_field.to_sym)
+            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
-            time_zone = read_attribute(time_zone)
-            self.send("#{name}=".to_sym, [time, time_zone]) if time && time_zone
+            if time_zone.present?
+              value = time_zone.parse(time.to_s(:db))
+            else
+              value = time
+            end
+
+            self.instance_variable_set("@#{time_field}", value)
           end
         end
 
@@ -39,18 +45,20 @@ module Greenwich  #:nodoc:
         options[:for].map! { |v| [v, Greenwich::Utilities.get_time_field(v, column_names)] }
 
         define_method "#{name}" do
-          time_zone_name = read_attribute(name)
+          time_zone_name = self.instance_variable_get("@#{name}")
+
           ActiveSupport::TimeZone.new(time_zone_name) unless time_zone_name.nil?
         end
 
         define_method "#{name}=" do |time_zone_string|
           instance_eval do
             time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_string).try(:name)
-            write_attribute(name, time_zone)
+            self.instance_variable_set("@#{name}", time_zone)
 
             options[:for].each do |composed_field, time_field|
-              time = read_attribute(time_field)
-              self.send("#{composed_field}=".to_sym, [time, time_zone]) if time && time_zone
+              time = self.send(time_field.to_sym)
+
+              self.send("#{time_field}=".to_sym, time) if time && time_zone
             end
           end
         end
