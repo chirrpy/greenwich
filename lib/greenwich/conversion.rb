@@ -60,7 +60,7 @@ module Greenwich  #:nodoc:
 
       def time_zone(name, options = {})
         options[:for] = [options[:for]].compact unless options[:for].is_a? Array
-        options[:for].map! { |v| [v, Greenwich::Utilities.get_time_field(v, column_names)] }
+        options[:for].map! { |v| Greenwich::Utilities.get_time_field(v, column_names) }
 
         define_method "#{name}" do
           time_zone_name = read_attribute(name)
@@ -73,10 +73,10 @@ module Greenwich  #:nodoc:
             time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_string).try(:name)
             write_attribute(name, time_zone)
 
-            options[:for].each do |composed_field, time_field|
-              time = self.send(time_field.to_sym)
+            options[:for].each do |time_field|
+              time = read_attribute(time_field)
 
-              self.send("#{time_field}=".to_sym, time) if time && time_zone
+              send("#{time_field}=".to_sym, time) if time && time_zone
             end
           end
         end
