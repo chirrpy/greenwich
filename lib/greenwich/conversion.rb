@@ -90,7 +90,7 @@ module Greenwich  #:nodoc:
         define_method "#{name}" do
           time_zone_name = read_attribute(name)
 
-          ActiveSupport::TimeZone.new(time_zone_name) unless time_zone_name.nil?
+          Greenwich::Utilities.get_time_zone_from(time_zone_name)
         end
 
         define_method "#{name}=" do |time_zone_string|
