@@ -9,6 +9,19 @@ module Greenwich  #:nodoc:
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
         time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
+        define_method time_field do
+          instance_eval do
+            time_zone_value = read_attribute(time_zone_field)
+            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
+
+            value = read_attribute(time_field)
+
+            return value unless value.present?
+
+            value.in_time_zone(time_zone)
+          end
+        end
+
         define_method "#{time_field}=" do |time|
           instance_eval do
             if time.nil?
