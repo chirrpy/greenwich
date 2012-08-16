@@ -1,19 +1,44 @@
 require 'spec_helper'
+require 'pry'
 
-class ModelWithCustomTimeZone
+root = File.expand_path(File.join(File.dirname(__FILE__), '../..'))
+db_root = File.join(root, 'db')
+
+Dir.mkdir(db_root) unless File.exists?(db_root)
+ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
+                                        :database => "#{db_root}/conversion.db")
+
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_custom_time_zones'")
+ActiveRecord::Base.connection.create_table(:model_with_custom_time_zones) do |t|
+  t.datetime :started_at
+  t.string   :time_zone
+end
+
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_static_time_zones'")
+ActiveRecord::Base.connection.create_table(:model_with_static_time_zones) do |t|
+  t.datetime :started_at
+end
+
+class ModelWithCustomTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
-  attr_accessor :started_at,
-                :started_time_zone,
-                :time_zone
-
-  # TODO: The fact that we use column_names means we're depending on ActiveRecord.
-  def self.column_names
-    %w(started_at time_zone)
-  end
+  attr_accessible :started_at,
+                  :time_zone
 
   time_with_custom_time_zone :started,   :time_zone => :time_zone
   time_zone                  :time_zone, :for       => [:started]
+end
+
+class ModelWithStaticTimeZone < ActiveRecord::Base
+  include Greenwich::Conversion
+
+  def time_zone
+   'Central Time (US & Canada)'
+  end
+
+  attr_accessible :started_at
+
+  time_with_static_time_zone :started,   :time_zone => :time_zone
 end
 
 describe Greenwich::Conversion do
