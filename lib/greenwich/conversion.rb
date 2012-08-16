@@ -46,14 +46,39 @@ module Greenwich  #:nodoc:
       end
 
       def time_with_static_time_zone(name, options = {})
-        define_method "#{name}" do
-          time_field  = Greenwich::Utilities.get_time_field(name, self.class.column_names)
+        time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
+        time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
+        define_method time_field do
           instance_eval do
-            time      = send(time_field.to_sym)
-            time_zone = Greenwich::Utilities.get_time_zone_from(send(options[:time_zone]))
+            time_zone_value = send(time_zone_field.to_sym)
+            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
-            ActiveSupport::TimeWithZone.new(nil, time_zone, time)
+            value = read_attribute(time_field)
+
+            return value unless value.present?
+
+            value.in_time_zone(time_zone)
+          end
+        end
+
+        define_method "#{time_field}=" do |time|
+          instance_eval do
+            if time.nil?
+              write_attribute(time_field, time)
+              return
+            end
+
+            time_zone_value = send(time_zone_field.to_sym)
+            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
+
+            if time_zone.present?
+              value = time_zone.parse(time.to_s(:db))
+            else
+              value = time
+            end
+
+            write_attribute(time_field, value)
           end
         end
       end
