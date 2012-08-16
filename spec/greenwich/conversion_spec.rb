@@ -50,10 +50,37 @@ describe Greenwich::Conversion do
       before { model.time_zone = central_time_zone.name }
 
       context 'and the time field is set' do
-        before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+        context 'to a UTC time' do
+          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
-        it 'converts the time field to the local time' do
-          model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+          it 'converts the time field to the local time' do
+            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+          end
+
+          context 'and it is saved to the database then reloaded' do
+            before do
+              model.save!
+
+              model.reload
+            end
+
+            it 'converts the time field to the local time' do
+              model.started_at.should_not be_utc
+              model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+            end
+
+            it 'converts the time field to a TimeWithZone' do
+              model.started_at.should be_a ActiveSupport::TimeWithZone
+            end
+          end
+        end
+
+        context 'to nil' do
+          before { model.started_at = nil }
+
+          it 'does not convert the time field' do
+            model.started_at.should be_nil
+          end
         end
       end
     end
@@ -66,6 +93,46 @@ describe Greenwich::Conversion do
 
         it 'does not convert the time field' do
           model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+        end
+      end
+    end
+  end
+
+  describe '.time_with_static_time_zone' do
+    let(:model)     { ModelWithStaticTimeZone.new }
+    let(:time_zone) { Greenwich::Utilities.get_time_zone_from(model.time_zone) }
+
+    context 'when the time field is set' do
+      context 'to a UTC time' do
+        before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+        it 'converts the time field to the local time' do
+          model.started_at.should eql time_zone.parse('2012-01-02 12:59:01')
+        end
+
+        context 'and it is saved to the database then reloaded' do
+          before do
+            model.save!
+
+            model.reload
+          end
+
+          it 'converts the time field to the local time' do
+            model.started_at.should_not be_utc
+            model.started_at.should eql time_zone.parse('2012-01-02 12:59:01')
+          end
+
+          it 'converts the time field to a TimeWithZone' do
+            model.started_at.should be_a ActiveSupport::TimeWithZone
+          end
+        end
+      end
+
+      context 'to nil' do
+        before { model.started_at = nil }
+
+        it 'does not convert the time field' do
+          model.started_at.should be_nil
         end
       end
     end
