@@ -12,6 +12,10 @@ module Greenwich  #:nodoc:
         define_method "#{time_field}=" do |time|
           instance_eval do
             time_zone_value = self.send(time_zone_field.to_sym)
+            if time.nil?
+              write_attribute(time_field, time)
+              return
+            end
             time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
