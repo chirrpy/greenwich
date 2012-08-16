@@ -34,44 +34,6 @@ describe Greenwich::Utilities do
     end
   end
 
-  describe '.get_time_field' do
-    subject { Greenwich::Utilities.get_time_field(name, columns) }
-
-    let(:name) { 'foo' }
-
-    context 'when columns includes all of the target columns' do
-      let(:columns) { %w(foo bar foo_at foo_datetime foo_time) }
-
-      it 'is the first available one' do
-        subject.should eql 'foo_at'
-      end
-    end
-
-    context 'when columns includes only some of the target columns' do
-      let(:columns) { %w(foo bar foo_datetime foo_time) }
-
-      it 'is the first available one' do
-        subject.should eql 'foo_datetime'
-      end
-    end
-
-    context 'when columns includes only one of the target columns' do
-      let(:columns) { %w(foo bar foo_time) }
-
-      it 'is the first available one' do
-        subject.should eql 'foo_time'
-      end
-    end
-
-    context 'when columns does not include any of the target columns' do
-      let(:columns) { %w(foo bar) }
-
-      it 'is nil' do
-        subject.should be_nil
-      end
-    end
-  end
-
   describe '.get_time_zone_from' do
     subject { Greenwich::Utilities.get_time_zone_from(value) }
 

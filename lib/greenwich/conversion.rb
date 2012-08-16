@@ -5,9 +5,8 @@ module Greenwich  #:nodoc:
     end
 
     module ClassMethods
-      def time_with_custom_time_zone(name, options = {})
+      def time_with_custom_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
-        time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
         define_method time_field do
           instance_eval do
@@ -42,12 +41,11 @@ module Greenwich  #:nodoc:
           end
         end
 
-        time_zone "#{name}_time_zone".to_sym, :for => name.to_sym if options[:time_zone] == time_zone_field
+        time_zone "#{time_field}_time_zone".to_sym, :for => time_field.to_sym if options[:time_zone] == time_zone_field
       end
 
-      def time_with_static_time_zone(name, options = {})
+      def time_with_static_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
-        time_field      = options[:time_field] || Greenwich::Utilities.get_time_field(name, column_names)
 
         define_method time_field do
           instance_eval do
@@ -85,7 +83,6 @@ module Greenwich  #:nodoc:
 
       def time_zone(name, options = {})
         options[:for] = [options[:for]].compact unless options[:for].is_a? Array
-        options[:for].map! { |v| Greenwich::Utilities.get_time_field(v, column_names) }
 
         define_method "#{name}" do
           time_zone_name = read_attribute(name)

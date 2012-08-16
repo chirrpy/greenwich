@@ -6,12 +6,6 @@ module Greenwich
       get_target_column(target_columns, columns)
     end
 
-    def self.get_time_field(name, columns)
-      target_columns = ["#{name}_at", "#{name}_datetime", "#{name}_time"]
-
-      get_target_column(target_columns, columns)
-    end
-
     def self.get_time_zone_from(value)
       return nil   if value.nil?
 
