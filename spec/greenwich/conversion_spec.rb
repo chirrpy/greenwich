@@ -23,6 +23,7 @@ class ModelWithCustomTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
   attr_accessible :started_at,
+                  :started_at_utc,
                   :time_zone
 
   time_with_custom_time_zone :started_at, :time_zone => :time_zone
@@ -36,7 +37,8 @@ class ModelWithStaticTimeZone < ActiveRecord::Base
    'Central Time (US & Canada)'
   end
 
-  attr_accessible :started_at
+  attr_accessible :started_at,
+                  :started_at_utc
 
   time_with_static_time_zone :started_at, :time_zone => :time_zone
 end
@@ -48,6 +50,18 @@ describe Greenwich::Conversion do
 
     context 'when the time zone is set' do
       before { model.time_zone = central_time_zone.name }
+
+      context 'and the UTC setter is used for the time field' do
+        before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+        it 'the UTC getter returns the time' do
+          model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+        end
+
+        it 'the time field converts the time' do
+          model.started_at.should eql central_time_zone.parse('2012-01-02 6:59:01')
+        end
+      end
 
       context 'and the time field is set' do
         context 'to a UTC time' do
@@ -101,6 +115,18 @@ describe Greenwich::Conversion do
   describe '.time_with_static_time_zone' do
     let(:model)     { ModelWithStaticTimeZone.new }
     let(:time_zone) { Greenwich::Utilities.get_time_zone_from(model.time_zone) }
+
+    context 'and the UTC setter is used for the time field' do
+      before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+      it 'the UTC getter returns the time' do
+        model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+
+      it 'the time field converts the time' do
+        model.started_at.should eql time_zone.parse('2012-01-02 6:59:01')
+      end
+    end
 
     context 'when the time field is set' do
       context 'to a UTC time' do

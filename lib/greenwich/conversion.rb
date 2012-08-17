@@ -8,6 +8,18 @@ module Greenwich  #:nodoc:
       def time_with_custom_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
 
+        define_method "#{time_field}_utc" do
+          value = read_attribute(time_field)
+
+          return value unless value.present?
+
+          value.utc
+        end
+
+        define_method "#{time_field}_utc=" do |time|
+          write_attribute(time_field, time)
+        end
+
         define_method time_field do
           instance_eval do
             time_zone_value = read_attribute(time_zone_field)
@@ -46,6 +58,18 @@ module Greenwich  #:nodoc:
 
       def time_with_static_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone]  || Greenwich::Utilities.get_time_zone_field(name, column_names)
+
+        define_method "#{time_field}_utc" do
+          value = read_attribute(time_field)
+
+          return value unless value.present?
+
+          value.utc
+        end
+
+        define_method "#{time_field}_utc=" do |time|
+          write_attribute(time_field, time)
+        end
 
         define_method time_field do
           instance_eval do
