@@ -44,7 +44,11 @@ module Greenwich  #:nodoc:
             time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
-              value = time_zone.parse(time.to_s(:db))
+              if time.is_a? String
+                value = time_zone.parse(time)
+              else
+                value = time_zone.parse(time.to_s(:db))
+              end
             else
               value = time
             end
@@ -95,7 +99,11 @@ module Greenwich  #:nodoc:
             time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
-              value = time_zone.parse(time.to_s(:db))
+              if time.is_a? String
+                value = time_zone.parse(time)
+              else
+                value = time_zone.parse(time.to_s(:db))
+              end
             else
               value = time
             end

@@ -51,23 +51,65 @@ describe Greenwich::Conversion do
     context 'when the time zone is set' do
       before { model.time_zone = central_time_zone.name }
 
-      context 'and the UTC setter is used for the time field' do
-        before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+      describe '#time_field_utc=' do
+        context 'and the field is set to nil' do
+          before { model.started_at_utc = nil }
 
-        it 'the UTC getter returns the time' do
-          model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          it 'the UTC field is nil' do
+            model.started_at_utc.should be_nil
+          end
+
+          it 'the time field is nil' do
+            model.started_at.should be_nil
+          end
         end
 
-        it 'the time field converts the time' do
-          model.started_at.should eql central_time_zone.parse('2012-01-02 6:59:01')
+        context 'and the field is set with a TimeWithZone' do
+          before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+          it 'the UTC field is the time' do
+            model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+
+          it 'the time field converts the time' do
+            model.started_at.should eql central_time_zone.parse('2012-01-02 6:59:01')
+          end
         end
       end
 
-      context 'and the time field is set' do
-        context 'to a UTC time' do
+      describe '#time_field=' do
+        context 'and the field is set to nil' do
+          before { model.started_at = nil }
+
+          it 'the UTC field is nil' do
+            model.started_at_utc.should be_nil
+          end
+
+          it 'the time field is nil' do
+            model.started_at.should be_nil
+          end
+        end
+
+        context 'and the field is set with a string that does not contain a UTC offset' do
+          before { model.started_at = '2012-01-02 12:59:01' }
+
+          it 'parses the time for the time zone' do
+            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+          end
+        end
+
+        context 'and the field is set with a string that does contain a UTC offset' do
+          before { model.started_at = '2012-01-02 12:59:01 -0000'}
+
+          it 'includes the UTC offset when parsing the time' do
+            model.started_at.should eql central_time_zone.parse('2012-01-02 06:59:01')
+          end
+        end
+
+        context 'and the field is set with UTC time' do
           before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
-          it 'converts the time field to the local time' do
+          it 'the time field converts the time' do
             model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
           end
 
