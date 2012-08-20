@@ -54,10 +54,10 @@ describe Greenwich::Conversion do
       end
     end
 
-    context 'when the time zone is set' do
-      before { model.time_zone = alaskan_time_zone.name }
+    describe '#time_field_utc=' do
+      context 'when the time zone is set' do
+        before { model.time_zone = alaskan_time_zone.name }
 
-      describe '#time_field_utc=' do
         context 'and the field is set to nil' do
           before { model.started_at_utc = nil }
 
@@ -82,6 +82,10 @@ describe Greenwich::Conversion do
           end
         end
       end
+    end
+
+    context 'when the time zone is set' do
+      before { model.time_zone = alaskan_time_zone.name }
 
       describe '#time_field=' do
         context 'and the field is set to nil' do
