@@ -94,6 +94,14 @@ describe Greenwich::Conversion do
           end
         end
       end
+
+      context 'when it is something other than a Time' do
+        before { model.send :write_attribute, :started_at, 5 }
+
+        it 'returns the raw value' do
+          model.started_at.should eql 5
+        end
+      end
     end
 
     context 'when the time zone is set' do
