@@ -200,16 +200,29 @@ describe Greenwich::Conversion do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
-    context 'when the time zone for the field is set' do
-      before { model.time_zone = alaskan_time_zone.name }
+    context 'when the object does have a time zone' do
+      before { model.send(:write_attribute, :time_zone, alaskan_time_zone.name) }
 
       it 'is the time zone' do
         model.time_zone.should eql alaskan_time_zone
       end
     end
 
-    context 'when the time zone for the field is not set' do
-      before { model.time_zone = nil }
+    context 'when the object does not have a time zone' do
+      before { model.send(:write_attribute, :time_zone, nil) }
+
+      it 'is nil' do
+        model.time_zone.should be_nil
+      end
+    end
+  end
+
+  describe '.time_zone=' do
+    let(:model)             { ModelWithTimeZone.new }
+    let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+
+    context 'when the time zone for the field is not initially set' do
+      before { model.send(:write_attribute, :time_zone, alaskan_time_zone.name) }
 
       it 'is nil' do
         model.time_zone.should be_nil
