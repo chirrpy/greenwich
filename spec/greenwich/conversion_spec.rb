@@ -155,6 +155,27 @@ describe Greenwich::Conversion do
         end
       end
 
+      context 'when the time zone is not set' do
+        before { model.stub(:time_zone).and_return nil }
+
+        context 'and the time field is set' do
+          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+          it 'the time field is not adjusted' do
+            raw_started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+        end
+
+        context 'and the time field is not set' do
+          before { model.started_at = nil }
+
+          it 'the time field is nil' do
+            raw_started_at.should be_nil
+          end
+        end
+      end
+    end
+
           context 'and it is saved to the database then reloaded' do
             before do
               model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
@@ -173,107 +194,6 @@ describe Greenwich::Conversion do
               model.started_at.should be_a ActiveSupport::TimeWithZone
             end
           end
-
-      context 'when the time field is set' do
-        before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
-
-        context 'and there is no time zone' do
-          context 'because the time zone field is not set' do
-            before do
-              model.stub(:time_zone).and_return nil
-              model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-            end
-
-            it 'does not convert the time' do
-              model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
-            end
-          end
-
-          context 'because the time zone field does not exist' do
-            before do
-              model.stub(:time_zone).and_raise NoMethodError
-              model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-            end
-
-            it 'does not throw an error' do
-              model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
-            end
-          end
-        end
-
-        context 'to a UTC time' do
-          before do
-            model.time_zone = 'Alaska'
-            model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-          end
-
-          it 'converts the time field to the local time' do
-            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
-          end
-
-          context 'and it is saved to the database then reloaded' do
-            before do
-              model.save!
-
-              model.reload
-            end
-
-            it 'converts the time field to the local time' do
-              model.started_at.should_not be_utc
-              model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
-            end
-
-            it 'converts the time field to a TimeWithZone' do
-              model.started_at.should be_a ActiveSupport::TimeWithZone
-            end
-          end
-        end
-
-        context 'to nil' do
-          before { model.started_at = nil }
-
-          it 'does not convert the time field' do
-            model.started_at.should be_nil
-          end
-        end
-
-        context 'and the field is set to something which cannot be converted to a time' do
-          before { model.started_at = 5 }
-
-          it 'skips all time conversion' do
-            model.started_at.should eql 5
-          end
-        end
-
-        context 'and the field is set to something which cannot be properly converted to a time' do
-          before { model.started_at = 'foo' }
-
-          it 'is nil' do
-            model.started_at.should be_nil
-          end
-        end
-      end
-    end
-
-    context 'when the time zone is not set' do
-      before { model.time_zone = nil }
-
-      context 'and the time field is not set' do
-        before { model.started_at = nil }
-
-        it 'the time field is not present' do
-          model.started_at.should_not be_present
-        end
-      end
-
-      context 'and the time field is set' do
-        before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
-
-        it 'does not convert the time field' do
-          model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
-        end
-      end
-    end
   end
 
   describe '.time_zone' do
