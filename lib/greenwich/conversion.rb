@@ -35,7 +35,18 @@ module Greenwich  #:nodoc:
 
         define_method "#{time_field}=" do |time|
           instance_eval do
-            if time.nil?
+            if time.is_a?(String)
+              write_attribute(time_field, time)
+              return
+            end
+            if !time.is_a?(Time) && time.respond_to?(:to_time)
+              begin
+                time = time.to_time
+              rescue
+              end
+            end
+
+            unless time.is_a? Time
               write_attribute(time_field, time)
               return
             end
@@ -44,11 +55,7 @@ module Greenwich  #:nodoc:
             time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
-              if time.is_a? String
-                value = time_zone.parse(time)
-              else
-                value = time_zone.parse(time.to_s(:db))
-              end
+              value = ActiveSupport::TimeWithZone.new nil, time_zone, time
             else
               value = time
             end
@@ -95,11 +102,21 @@ module Greenwich  #:nodoc:
 
         define_method "#{time_field}=" do |time|
           instance_eval do
-            if time.nil?
+            if time.is_a?(String)
               write_attribute(time_field, time)
               return
             end
+            if !time.is_a?(Time) && time.respond_to?(:to_time)
+              begin
+                time = time.to_time
+              rescue
+              end
+            end
 
+            unless time.is_a? Time
+              write_attribute(time_field, time)
+              return
+            end
 
             begin
               time_zone_value = send(time_zone_field.to_sym)
@@ -110,11 +127,7 @@ module Greenwich  #:nodoc:
             time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
-              if time.is_a? String
-                value = time_zone.parse(time)
-              else
-                value = time_zone.parse(time.to_s(:db))
-              end
+              value = ActiveSupport::TimeWithZone.new nil, time_zone, time
             else
               value = time
             end

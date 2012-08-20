@@ -90,6 +90,22 @@ describe Greenwich::Conversion do
           end
         end
 
+        context 'and the field is set to something which cannot be converted to a time' do
+          before { model.started_at = 5 }
+
+          it 'skips all time conversion' do
+            model.started_at.should eql 5
+          end
+        end
+
+        context 'and the field is set to something which cannot be properly converted to a time' do
+          before { model.started_at = 'foo' }
+
+          it 'is nil' do
+            model.started_at.should be_nil
+          end
+        end
+
         context 'and the field is set with a string that does not contain a UTC offset' do
           before { model.started_at = '2012-01-02 12:59:01' }
 
@@ -99,10 +115,10 @@ describe Greenwich::Conversion do
         end
 
         context 'and the field is set with a string that does contain a UTC offset' do
-          before { model.started_at = '2012-01-02 12:59:01 -0000'}
+          before { model.started_at = '2012-01-02 12:59:01 -0800'}
 
-          it 'includes the UTC offset when parsing the time' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 06:59:01')
+          it 'ignores any time zone offset information' do
+            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
           end
         end
 
@@ -143,6 +159,14 @@ describe Greenwich::Conversion do
 
     context 'when the time zone is not set' do
       before { model.time_zone = nil }
+
+      context 'and the time field is not set' do
+        before { model.started_at = nil }
+
+        it 'the time field is not present' do
+          model.started_at.should_not be_present
+        end
+      end
 
       context 'and the time field is set' do
         before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
@@ -226,6 +250,22 @@ describe Greenwich::Conversion do
         before { model.started_at = nil }
 
         it 'does not convert the time field' do
+          model.started_at.should be_nil
+        end
+      end
+
+      context 'and the field is set to something which cannot be converted to a time' do
+        before { model.started_at = 5 }
+
+        it 'skips all time conversion' do
+          model.started_at.should eql 5
+        end
+      end
+
+      context 'and the field is set to something which cannot be properly converted to a time' do
+        before { model.started_at = 'foo' }
+
+        it 'is nil' do
           model.started_at.should be_nil
         end
       end
