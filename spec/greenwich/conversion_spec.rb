@@ -102,6 +102,18 @@ describe Greenwich::Conversion do
           model.started_at.should eql 5
         end
       end
+
+      context 'when the time zone is set properly' do
+        before { model.stub(:time_zone).and_return 'Alaska' }
+
+        context 'when it is a time' do
+          before { model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1) }
+
+          it 'returns the time in the time zone' do
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
+          end
+        end
+      end
     end
 
     context 'when the time zone is set' do
