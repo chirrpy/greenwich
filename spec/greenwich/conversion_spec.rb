@@ -222,11 +222,6 @@ describe Greenwich::Conversion do
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
     context 'when the time zone for the field is not initially set' do
-      before { model.send(:write_attribute, :time_zone, alaskan_time_zone.name) }
-
-      it 'is nil' do
-        model.time_zone.should be_nil
-      end
 
       context 'but then it is set after the time field is set' do
         before do
