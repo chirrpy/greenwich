@@ -65,6 +65,35 @@ describe Greenwich::Conversion do
           model.started_at.should be_nil
         end
       end
+
+      context 'when there is no time zone' do
+        let(:raw_time_value) { Time.utc(2012, 1, 1, 12, 0, 0) }
+        before               { model.send :write_attribute, :started_at, raw_time_value }
+
+        context 'because it does not exist' do
+          before { model.stub(:time_zone).and_return nil }
+
+          it 'returns the raw time field' do
+            model.started_at.should eql raw_time_value
+          end
+        end
+
+        context 'because it cannot be found' do
+          before { model.stub(:time_zone).and_raise NoMethodError }
+
+          it 'returns the raw time field' do
+            model.started_at.should eql raw_time_value
+          end
+        end
+
+        context 'because it is not valid' do
+          before { model.stub(:time_zone).and_return "Look at me! I'm an invalid time zone!" }
+
+          it 'returns the raw time field' do
+            model.started_at.should eql raw_time_value
+          end
+        end
+      end
     end
 
     context 'when the time zone is set' do
