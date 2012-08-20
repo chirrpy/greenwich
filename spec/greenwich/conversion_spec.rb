@@ -178,18 +178,6 @@ describe Greenwich::Conversion do
         end
       end
 
-      context 'and the UTC setter is used for the time field' do
-        before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
-
-        it 'the UTC getter returns the time' do
-          model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
-        end
-
-        it 'the time field converts the time' do
-          model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
-        end
-      end
-
       context 'when the time field is set' do
         before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
