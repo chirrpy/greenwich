@@ -176,24 +176,24 @@ describe Greenwich::Conversion do
       end
     end
 
-          context 'and it is saved to the database then reloaded' do
-            before do
-              model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-              model.time_zone = 'Alaska'
-              model.save!
+    context 'when it is saved to the database and reloaded' do
+      before do
+        model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+        model.time_zone  = 'Alaska'
+        model.save!
 
-              model.reload
-            end
+        model.reload
+      end
 
-            it 'converts the time field to the local time' do
-              model.started_at.should_not be_utc
-              model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
-            end
+      it 'converts the time field to the local time' do
+        model.started_at.should_not be_utc
+        model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
+      end
 
-            it 'converts the time field to a TimeWithZone' do
-              model.started_at.should be_a ActiveSupport::TimeWithZone
-            end
-          end
+      it 'converts the time field to a TimeWithZone' do
+        model.started_at.should be_a ActiveSupport::TimeWithZone
+      end
+    end
   end
 
   describe '.time_zone' do
