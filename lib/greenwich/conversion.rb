@@ -24,7 +24,7 @@ module Greenwich  #:nodoc:
               time_zone_value = ''
             end
 
-            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
+            time_zone       = Greenwich::Utilities.get_time_zone_from_string(time_zone_value)
 
             value = read_attribute(time_field)
 
@@ -58,7 +58,7 @@ module Greenwich  #:nodoc:
               time_zone_value = ''
             end
 
-            time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_value)
+            time_zone = Greenwich::Utilities.get_time_zone_from_string(time_zone_value)
 
             if time_zone.present?
               value = ActiveSupport::TimeWithZone.new nil, time_zone, time
@@ -79,12 +79,12 @@ module Greenwich  #:nodoc:
         define_method name do
           time_zone_name = read_attribute(name)
 
-          Greenwich::Utilities.get_time_zone_from(time_zone_name)
+          Greenwich::Utilities.get_time_zone_from_name(time_zone_name)
         end
 
         define_method "#{name}=" do |time_zone_string|
           instance_eval do
-            time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_string).try(:name)
+            time_zone = Greenwich::Utilities.get_time_zone_from_name(time_zone_string).try(:name)
             write_attribute(name, time_zone)
 
             options[:for].each do |time_field|

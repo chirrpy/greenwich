@@ -6,12 +6,11 @@ module Greenwich
       get_target_column(target_columns, columns)
     end
 
-    def self.get_time_zone_from(value)
-      return nil   if value.nil?
+    def self.get_time_zone_from_name(name)
+      return nil  if name.nil?
+      return name if name.is_a? ActiveSupport::TimeZone
 
-      return value if value.is_a? ActiveSupport::TimeZone
-
-      ActiveSupport::TimeZone.new(value)
+      ActiveSupport::TimeZone.new(name)
     end
 
   private

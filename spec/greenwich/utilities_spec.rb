@@ -34,8 +34,8 @@ describe Greenwich::Utilities do
     end
   end
 
-  describe '.get_time_zone_from' do
-    subject { Greenwich::Utilities.get_time_zone_from(value) }
+  describe '.get_time_zone_from_name' do
+    subject { Greenwich::Utilities.get_time_zone_from_name(value) }
 
     context 'when the value is nil' do
       let(:value) { nil }
