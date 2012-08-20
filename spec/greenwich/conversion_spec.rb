@@ -30,6 +30,30 @@ describe Greenwich::Conversion do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
+    describe '#time_field_utc' do
+      context 'when the time field is set to a non-UTC time' do
+        before do
+          model.time_zone  = alaskan_time_zone
+          model.started_at = Time.utc(2012, 1, 1, 12, 0, 0)
+        end
+
+        it 'is the time in the UTC time zone' do
+          model.started_at_utc.should eql Time.utc(2012, 1, 1, 21, 0, 0)
+        end
+      end
+
+      context 'when the time field is not set' do
+        before do
+          model.time_zone  = alaskan_time_zone
+          model.started_at = nil
+        end
+
+        it 'is nil' do
+          model.started_at_utc.should be_nil
+        end
+      end
+    end
+
     context 'when the time zone is set' do
       before { model.time_zone = alaskan_time_zone.name }
 

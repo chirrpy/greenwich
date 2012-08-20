@@ -9,11 +9,7 @@ module Greenwich  #:nodoc:
         time_zone_field = options[:time_zone] || Greenwich::Utilities.get_time_zone_field(name, column_names)
 
         define_method "#{time_field}_utc" do
-          value = read_attribute(time_field)
-
-          return value unless value.present?
-
-          value.utc
+          read_attribute(time_field)
         end
 
         define_method "#{time_field}_utc=" do |time|
