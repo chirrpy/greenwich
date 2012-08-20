@@ -26,12 +26,12 @@ class ModelWithTimeZone < ActiveRecord::Base
 end
 
 describe Greenwich::Conversion do
-  describe '.time_with_custom_time_zone' do
+  describe '.time_with_time_zone' do
     let(:model)             { ModelWithTimeZone.new }
-    let(:central_time_zone) { ActiveSupport::TimeZone.new('Central Time (US & Canada)') }
+    let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
     context 'when the time zone is set' do
-      before { model.time_zone = central_time_zone.name }
+      before { model.time_zone = alaskan_time_zone.name }
 
       describe '#time_field_utc=' do
         context 'and the field is set to nil' do
@@ -54,7 +54,7 @@ describe Greenwich::Conversion do
           end
 
           it 'the time field converts the time' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 6:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
           end
         end
       end
@@ -92,7 +92,7 @@ describe Greenwich::Conversion do
           before { model.started_at = '2012-01-02 12:59:01' }
 
           it 'parses the time for the time zone' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
           end
         end
 
@@ -100,7 +100,7 @@ describe Greenwich::Conversion do
           before { model.started_at = '2012-01-02 12:59:01 -0800'}
 
           it 'ignores any time zone offset information' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
           end
         end
 
@@ -108,7 +108,7 @@ describe Greenwich::Conversion do
           before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'the time field converts the time' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
           end
 
           context 'and it is saved to the database then reloaded' do
@@ -120,7 +120,7 @@ describe Greenwich::Conversion do
 
             it 'converts the time field to the local time' do
               model.started_at.should_not be_utc
-              model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+              model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
             end
 
             it 'converts the time field to a TimeWithZone' do
@@ -146,7 +146,7 @@ describe Greenwich::Conversion do
         end
 
         it 'the time field converts the time' do
-          model.started_at.should eql central_time_zone.parse('2012-01-02 6:59:01')
+          model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
         end
       end
 
@@ -181,7 +181,7 @@ describe Greenwich::Conversion do
           before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'converts the time field to the local time' do
-            model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
           end
 
           context 'and it is saved to the database then reloaded' do
@@ -193,7 +193,7 @@ describe Greenwich::Conversion do
 
             it 'converts the time field to the local time' do
               model.started_at.should_not be_utc
-              model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+              model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
             end
 
             it 'converts the time field to a TimeWithZone' do
@@ -251,13 +251,13 @@ describe Greenwich::Conversion do
 
   describe '.time_zone' do
     let(:model)             { ModelWithTimeZone.new }
-    let(:central_time_zone) { ActiveSupport::TimeZone.new('Central Time (US & Canada)') }
+    let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
     context 'when the time zone for the field is set' do
-      before { model.time_zone = central_time_zone.name }
+      before { model.time_zone = alaskan_time_zone.name }
 
       it 'is the time zone' do
-        model.time_zone.should eql central_time_zone
+        model.time_zone.should eql alaskan_time_zone
       end
     end
 
@@ -271,11 +271,11 @@ describe Greenwich::Conversion do
       context 'but then it is set after the time field is set' do
         before do
           model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-          model.time_zone  = central_time_zone
+          model.time_zone  = alaskan_time_zone
         end
 
         it 'converts the time field' do
-          model.started_at.should eql central_time_zone.parse('2012-01-02 12:59:01')
+          model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
         end
       end
     end
