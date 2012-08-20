@@ -14,11 +14,6 @@ ActiveRecord::Base.connection.create_table(:model_with_custom_time_zones) do |t|
   t.string   :time_zone
 end
 
-ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_static_time_zones'")
-ActiveRecord::Base.connection.create_table(:model_with_static_time_zones) do |t|
-  t.datetime :started_at
-end
-
 class ModelWithCustomTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
@@ -28,19 +23,6 @@ class ModelWithCustomTimeZone < ActiveRecord::Base
 
   time_with_time_zone :started_at, :time_zone => :time_zone
   time_zone           :time_zone,  :for       => [:started_at]
-end
-
-class ModelWithStaticTimeZone < ActiveRecord::Base
-  include Greenwich::Conversion
-
-  def time_zone
-   'Central Time (US & Canada)'
-  end
-
-  attr_accessible :started_at,
-                  :started_at_utc
-
-  time_with_time_zone :started_at, :time_zone => :time_zone
 end
 
 describe Greenwich::Conversion do
@@ -179,7 +161,12 @@ describe Greenwich::Conversion do
   end
 
   describe '.time_with_static_time_zone' do
-    let(:model)     { ModelWithStaticTimeZone.new }
+    let(:model)     do
+      ModelWithCustomTimeZone.new.tap do |model|
+        model.stub(:time_zone).and_return ActiveSupport::TimeZone.new('Central Time (US & Canada)')
+      end
+    end
+
     let(:time_zone) { Greenwich::Utilities.get_time_zone_from(model.time_zone) }
 
     context 'and the UTC setter is used for the time field' do
