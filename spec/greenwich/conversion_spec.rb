@@ -26,8 +26,8 @@ class ModelWithCustomTimeZone < ActiveRecord::Base
                   :started_at_utc,
                   :time_zone
 
-  time_with_custom_time_zone :started_at, :time_zone => :time_zone
-  time_zone                  :time_zone,  :for       => [:started_at]
+  time_with_time_zone :started_at, :time_zone => :time_zone
+  time_zone           :time_zone,  :for       => [:started_at]
 end
 
 class ModelWithStaticTimeZone < ActiveRecord::Base
@@ -40,7 +40,7 @@ class ModelWithStaticTimeZone < ActiveRecord::Base
   attr_accessible :started_at,
                   :started_at_utc
 
-  time_with_static_time_zone :started_at, :time_zone => :time_zone
+  time_with_time_zone :started_at, :time_zone => :time_zone
 end
 
 describe Greenwich::Conversion do
