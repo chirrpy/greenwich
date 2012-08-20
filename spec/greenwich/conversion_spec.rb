@@ -101,58 +101,64 @@ describe Greenwich::Conversion do
     end
 
     describe '#time_field=' do
+      let(:raw_started_at) { model.read_attribute(:started_at) }
+
       context 'when the time zone is set' do
-        before { model.time_zone = alaskan_time_zone.name }
+        before { model.stub(:time_zone).and_return alaskan_time_zone.name }
 
         context 'and the field is set to nil' do
           before { model.started_at = nil }
 
           it 'the time field is nil' do
-            model.started_at.should be_nil
+            raw_started_at.should be_nil
           end
         end
 
         context 'and the field is set to something which cannot be converted to a time' do
           before { model.started_at = 5 }
 
-          it 'skips all time conversion' do
-            model.started_at.should eql 5
+          it 'the time field is unmodified' do
+            raw_started_at.should eql 5
           end
         end
 
         context 'and the field is set to something which cannot be properly converted to a time' do
           before { model.started_at = 'foo' }
 
-          it 'is nil' do
-            model.started_at.should be_nil
+          it 'the time field is nil' do
+            raw_started_at.should be_nil
           end
         end
 
         context 'and the field is set with a string that does not contain a UTC offset' do
           before { model.started_at = '2012-01-02 12:59:01' }
 
-          it 'parses the time for the time zone' do
-            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
+          it 'the time field is adjusted for the time zone' do
+            raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
           end
         end
 
         context 'and the field is set with a string that does contain a UTC offset' do
           before { model.started_at = '2012-01-02 12:59:01 -0800'}
 
-          it 'ignores any time zone offset information' do
-            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
+          it 'the time field ignores any time zone offset information' do
+            raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
           end
         end
 
         context 'and the field is set with UTC time' do
           before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
-          it 'the time field converts the time' do
-            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
+          it 'the time field is adjusted for the time zone' do
+            raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
           end
+        end
+      end
 
           context 'and it is saved to the database then reloaded' do
             before do
+              model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+              model.time_zone = 'Alaska'
               model.save!
 
               model.reload
@@ -167,16 +173,6 @@ describe Greenwich::Conversion do
               model.started_at.should be_a ActiveSupport::TimeWithZone
             end
           end
-        end
-
-        context 'to nil' do
-          before { model.started_at = nil }
-
-          it 'does not convert the time field' do
-            model.started_at.should be_nil
-          end
-        end
-      end
 
       context 'when the time field is set' do
         before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
