@@ -171,6 +171,32 @@ describe Greenwich::Conversion do
     end
 
     context 'when the time field is set' do
+      before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+      context 'and there is no time zone' do
+        context 'because the time zone field is not set' do
+          before do
+            model.stub(:time_zone).and_return nil
+            model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+
+          it 'does not convert the time' do
+            model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+        end
+
+        context 'because the time zone field does not exist' do
+          before do
+            model.stub(:time_zone).and_raise NoMethodError
+            model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+
+          it 'does not throw an error' do
+            model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+        end
+      end
+
       context 'to a UTC time' do
         before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 

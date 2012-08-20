@@ -27,7 +27,7 @@ module Greenwich  #:nodoc:
 
             value = read_attribute(time_field)
 
-            return value unless value.present?
+            return value unless value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeWithZone)
 
             value.in_time_zone(time_zone)
           end
@@ -77,12 +77,17 @@ module Greenwich  #:nodoc:
 
         define_method time_field do
           instance_eval do
-            time_zone_value = send(time_zone_field.to_sym)
+            begin
+              time_zone_value = send(time_zone_field.to_sym)
+            rescue
+              time_zone_value = ''
+            end
+
             time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             value = read_attribute(time_field)
 
-            return value unless value.present?
+            return value unless value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeZone)
 
             value.in_time_zone(time_zone)
           end
@@ -95,8 +100,14 @@ module Greenwich  #:nodoc:
               return
             end
 
-            time_zone_value = send(time_zone_field.to_sym)
-            time_zone       = Greenwich::Utilities.get_time_zone_from(time_zone_value)
+
+            begin
+              time_zone_value = send(time_zone_field.to_sym)
+            rescue
+              time_zone_value = ''
+            end
+
+            time_zone = Greenwich::Utilities.get_time_zone_from(time_zone_value)
 
             if time_zone.present?
               if time.is_a? String
