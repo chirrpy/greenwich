@@ -55,33 +55,6 @@ describe Greenwich::Conversion do
     end
 
     describe '#time_field_utc=' do
-      context 'when the time zone is set' do
-        before { model.time_zone = alaskan_time_zone.name }
-
-        context 'and the field is set to nil' do
-          before { model.started_at_utc = nil }
-
-          it 'the UTC field is nil' do
-            model.started_at_utc.should be_nil
-          end
-
-          it 'the time field is nil' do
-            model.started_at.should be_nil
-          end
-        end
-
-        context 'and the field is set with a TimeWithZone' do
-          before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
-
-          it 'the UTC field is the time' do
-            model.started_at_utc.should eql Time.utc(2012, 1, 2, 12, 59, 1)
-          end
-
-          it 'the time field converts the time' do
-            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
-          end
-        end
-      end
     end
 
     context 'when the time zone is set' do
@@ -90,10 +63,6 @@ describe Greenwich::Conversion do
       describe '#time_field=' do
         context 'and the field is set to nil' do
           before { model.started_at = nil }
-
-          it 'the UTC field is nil' do
-            model.started_at_utc.should be_nil
-          end
 
           it 'the time field is nil' do
             model.started_at.should be_nil
