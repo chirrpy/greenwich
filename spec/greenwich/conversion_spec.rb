@@ -57,6 +57,16 @@ describe Greenwich::Conversion do
     describe '#time_field_utc=' do
     end
 
+    describe '#time_field' do
+      context 'when it is nil' do
+        before { model.send :write_attribute, :started_at, nil }
+
+        it 'is nil' do
+          model.started_at.should be_nil
+        end
+      end
+    end
+
     context 'when the time zone is set' do
       before { model.time_zone = alaskan_time_zone.name }
 
