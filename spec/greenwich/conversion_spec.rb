@@ -8,13 +8,13 @@ Dir.mkdir(db_root) unless File.exists?(db_root)
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
                                         :database => "#{db_root}/conversion.db")
 
-ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_custom_time_zones'")
-ActiveRecord::Base.connection.create_table(:model_with_custom_time_zones) do |t|
+ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_time_zones'")
+ActiveRecord::Base.connection.create_table(:model_with_time_zones) do |t|
   t.datetime :started_at
   t.string   :time_zone
 end
 
-class ModelWithCustomTimeZone < ActiveRecord::Base
+class ModelWithTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
   attr_accessible :started_at,
@@ -27,7 +27,7 @@ end
 
 describe Greenwich::Conversion do
   describe '.time_with_custom_time_zone' do
-    let(:model)             { ModelWithCustomTimeZone.new }
+    let(:model)             { ModelWithTimeZone.new }
     let(:central_time_zone) { ActiveSupport::TimeZone.new('Central Time (US & Canada)') }
 
     context 'when the time zone is set' do
@@ -162,7 +162,7 @@ describe Greenwich::Conversion do
 
   describe '.time_with_static_time_zone' do
     let(:model)     do
-      ModelWithCustomTimeZone.new.tap do |model|
+      ModelWithTimeZone.new.tap do |model|
         model.stub(:time_zone).and_return ActiveSupport::TimeZone.new('Central Time (US & Canada)')
       end
     end
@@ -260,7 +260,7 @@ describe Greenwich::Conversion do
   end
 
   describe '.time_zone' do
-    let(:model)             { ModelWithCustomTimeZone.new }
+    let(:model)             { ModelWithTimeZone.new }
     let(:central_time_zone) { ActiveSupport::TimeZone.new('Central Time (US & Canada)') }
 
     context 'when the time zone for the field is set' do
