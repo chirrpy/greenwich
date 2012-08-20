@@ -41,9 +41,9 @@ module Greenwich  #:nodoc:
         define_method "#{time_field}=" do |time|
           instance_eval do
             if time.is_a?(String)
-              write_attribute(time_field, time)
-              return
+              time.gsub! /\s[-+]\d{4}$/, ''
             end
+
             if !time.is_a?(Time) && time.respond_to?(:to_time)
               begin
                 time = time.to_time
