@@ -18,12 +18,15 @@ module Greenwich
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           value     = read_attribute(time_field)
 
-          return value unless value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeZone)
-
-          value.in_time_zone(time_zone)
+          if value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeZone)
+            value.in_time_zone(time_zone)
+          else
+            value
+          end
         end
 
         define_method "#{time_field}=" do |time|
+
           if time.is_a?(String)
             time.gsub! /\s[-+]\d{4}$/, ''
           end
@@ -42,11 +45,11 @@ module Greenwich
 
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
-          if time_zone.present?
-            value = ActiveSupport::TimeWithZone.new nil, time_zone, time
-          else
-            value = time
-          end
+          value = if time_zone.present?
+                    ActiveSupport::TimeWithZone.new nil, time_zone, time
+                  else
+                    time
+                  end
 
           write_attribute(time_field, value)
         end
