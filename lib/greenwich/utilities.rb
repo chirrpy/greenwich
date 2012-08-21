@@ -29,12 +29,11 @@ module Greenwich
       end
 
       if !time.is_a?(Time) && time.respond_to?(:to_time)
-        begin
-          time = time.to_time
-        rescue
-        end
+        time = time.to_time
       end
 
+      time
+    rescue
       time
     end
 

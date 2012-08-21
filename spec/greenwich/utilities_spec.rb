@@ -30,7 +30,6 @@ describe Greenwich::Utilities do
           subject.should be_nil
         end
       end
-
     end
   end
 
