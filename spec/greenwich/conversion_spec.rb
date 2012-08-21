@@ -22,7 +22,6 @@ class ModelWithTimeZone < ActiveRecord::Base
                   :time_zone
 
   time_with_time_zone :started_at, :time_zone => :time_zone
-  time_zone           :time_zone,  :for       => [:started_at]
 end
 
 describe Greenwich::Conversion do
