@@ -116,8 +116,8 @@ describe Greenwich::Conversion do
         context 'and the field is set to something which cannot be converted to a time' do
           before { model.started_at = 5 }
 
-          it 'the time field is unmodified' do
-            raw_started_at.should eql 5
+          it 'the time field is nil' do
+            raw_started_at.should be_nil
           end
         end
 

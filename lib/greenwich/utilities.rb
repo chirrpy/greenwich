@@ -31,8 +31,6 @@ module Greenwich
 
         if time.respond_to?(:to_time)
           time.to_time
-        else
-          time
         end
       else
         time
