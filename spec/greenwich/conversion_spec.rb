@@ -225,6 +225,14 @@ describe Greenwich::Conversion do
       end
     end
 
+    context 'when it is set to a time zone name' do
+      before { model.time_zone = 'Alaska' }
+
+      it 'is set properly' do
+        model.read_attribute(:time_zone).should eql 'Alaska'
+      end
+    end
+
     context 'when it is set to an invalid time zone' do
       before { model.time_zone = 'I am not a time zone' }
 
