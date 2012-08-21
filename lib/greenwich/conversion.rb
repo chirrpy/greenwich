@@ -28,12 +28,7 @@ module Greenwich
         define_method "#{time_field}=" do |value|
           time      = Greenwich::Utilities.coerce_to_time_without_zone(value)
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
-
-          time      = if time && time_zone
-                        ActiveSupport::TimeWithZone.new nil, time_zone, time
-                      else
-                        time
-                      end
+          time      = ActiveSupport::TimeWithZone.new(nil, time_zone, time) if time && time_zone
 
           write_attribute(time_field, time)
         end
