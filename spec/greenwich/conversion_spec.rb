@@ -195,26 +195,26 @@ describe Greenwich::Conversion do
   describe '.time_zone=' do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
-    let(:raw_started_at) { model.send :read_attribute, :started_at }
+    let(:raw_started_at)    { model.send :read_attribute, :started_at }
 
-      context 'when it is set after the time field is set' do
-        before do
-          model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1)
-          model.time_zone = alaskan_time_zone
-        end
-
-        it 'triggers the time field to be converted' do
-          raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
-        end
+    context 'when it is set after the time field is set' do
+      before do
+        model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1)
+        model.time_zone = alaskan_time_zone
       end
 
-      context 'when it is set before the time field is set' do
-        before { model.time_zone = alaskan_time_zone }
-
-        it 'sets the time zone but does not touch the time' do
-          raw_started_at.should be_nil
-          model.read_attribute(:time_zone).should eql 'Alaska'
-        end
+      it 'triggers the time field to be converted' do
+        raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
       end
+    end
+
+    context 'when it is set before the time field is set' do
+      before { model.time_zone = alaskan_time_zone }
+
+      it 'sets the time zone but does not touch the time' do
+        raw_started_at.should be_nil
+        model.read_attribute(:time_zone).should eql 'Alaska'
+      end
+    end
   end
 end
