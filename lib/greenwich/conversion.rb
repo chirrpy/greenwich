@@ -26,18 +26,7 @@ module Greenwich
         end
 
         define_method "#{time_field}=" do |time|
-
-          if time.is_a?(String)
-            time.gsub! /\s[-+]\d{4}$/, ''
-          end
-
-          if !time.is_a?(Time) && time.respond_to?(:to_time)
-            begin
-              time = time.to_time
-            rescue
-            end
-          end
-
+          time      = Greenwich::Utilities.coerce_to_time_without_zone(time)
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
           value = if time.is_a?(Time) && time_zone.present?

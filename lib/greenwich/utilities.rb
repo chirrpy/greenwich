@@ -23,6 +23,21 @@ module Greenwich
       ActiveSupport::TimeZone.new(name)
     end
 
+    def self.coerce_to_time_without_zone(time)
+      if time.is_a?(String)
+        time.gsub! /\s[-+]\d{4}$/, ''
+      end
+
+      if !time.is_a?(Time) && time.respond_to?(:to_time)
+        begin
+          time = time.to_time
+        rescue
+        end
+      end
+
+      time
+    end
+
   private
     def self.get_target_column(target_columns, all_columns)
       target_columns.each {|col| return col if all_columns.include?(col) }
