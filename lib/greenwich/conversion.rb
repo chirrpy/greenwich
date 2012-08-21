@@ -15,18 +15,15 @@ module Greenwich
         end
 
         define_method time_field do
-          instance_eval do
             time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
             value     = read_attribute(time_field)
 
             return value unless value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeZone)
 
             value.in_time_zone(time_zone)
-          end
         end
 
         define_method "#{time_field}=" do |time|
-          instance_eval do
             if time.is_a?(String)
               time.gsub! /\s[-+]\d{4}$/, ''
             end
@@ -52,7 +49,6 @@ module Greenwich
             end
 
             write_attribute(time_field, value)
-          end
         end
 
         time_zone time_zone_field.to_sym, :for => time_field.to_sym
@@ -68,7 +64,6 @@ module Greenwich
         end
 
         define_method "#{name}=" do |time_zone_string|
-          instance_eval do
             time_zone = Greenwich::Utilities.get_time_zone_from_name(time_zone_string).try(:name)
             write_attribute(name, time_zone)
 
@@ -77,7 +72,6 @@ module Greenwich
 
               send("#{time_field}=".to_sym, time) if time && time_zone
             end
-          end
         end
       end
     end
