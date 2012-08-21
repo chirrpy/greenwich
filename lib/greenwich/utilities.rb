@@ -13,10 +13,10 @@ module Greenwich
         time_zone_name = ''
       end
 
-      Greenwich::Utilities.get_time_zone_from_name(time_zone_name)
+      Greenwich::Utilities.coerce_to_time_zone(time_zone_name)
     end
 
-    def self.get_time_zone_from_name(name)
+    def self.coerce_to_time_zone(name)
       return nil  if name.nil?
       return name if name.is_a? ActiveSupport::TimeZone
 
