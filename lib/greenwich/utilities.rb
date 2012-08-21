@@ -24,15 +24,19 @@ module Greenwich
     end
 
     def self.coerce_to_time_without_zone(time)
-      if time.respond_to? :gsub!
-        time.gsub! /\s[-+]\d{4}$/, ''
-      end
+      if !time.is_a?(Time)
+        if time.respond_to? :gsub!
+          time.gsub! /\s[-+]\d{4}$/, ''
+        end
 
-      if !time.is_a?(Time) && time.respond_to?(:to_time)
-        time = time.to_time
+        if time.respond_to?(:to_time)
+          time.to_time
+        else
+          time
+        end
+      else
+        time
       end
-
-      time
     rescue
       time
     end
