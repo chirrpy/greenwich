@@ -30,8 +30,8 @@ module Greenwich
       else
         time
       end
-    rescue
-      time
+    rescue ArgumentError
+      nil
     end
 
   private
