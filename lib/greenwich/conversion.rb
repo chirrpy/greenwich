@@ -47,9 +47,7 @@ module Greenwich
           write_attribute(name, time_zone)
 
           options[:for].each do |time_field|
-            time = read_attribute(time_field)
-
-            send("#{time_field}=".to_sym, time) if time && time_zone
+            send("#{time_field}=".to_sym, read_attribute(time_field))
           end
         end
       end
