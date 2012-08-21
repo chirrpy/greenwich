@@ -216,5 +216,13 @@ describe Greenwich::Conversion do
         model.read_attribute(:time_zone).should eql 'Alaska'
       end
     end
+
+    context 'when it is set to an ActiveSupport::TimeZone' do
+      before { model.time_zone = alaskan_time_zone }
+
+      it 'is set properly' do
+        model.read_attribute(:time_zone).should eql 'Alaska'
+      end
+    end
   end
 end
