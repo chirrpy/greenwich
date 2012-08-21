@@ -209,6 +209,15 @@ describe Greenwich::Conversion do
           raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
         end
       end
+
+      context 'if it is set before the time is set' do
+        before { model.time_zone = alaskan_time_zone }
+
+        it 'sets the time zone but does not touch the time' do
+          raw_started_at.should be_nil
+          model.read_attribute(:time_zone).should eql 'Alaska'
+        end
+      end
     end
   end
 end
