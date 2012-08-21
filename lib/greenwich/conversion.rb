@@ -38,14 +38,9 @@ module Greenwich
             end
           end
 
-          unless time.is_a? Time
-            write_attribute(time_field, time)
-            return
-          end
-
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
-          value = if time_zone.present?
+          value = if time.is_a?(Time) && time_zone.present?
                     ActiveSupport::TimeWithZone.new nil, time_zone, time
                   else
                     time
