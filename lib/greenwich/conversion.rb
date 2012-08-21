@@ -18,7 +18,7 @@ module Greenwich
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           value     = read_attribute(time_field)
 
-          if value.is_a?(Time) && time_zone.is_a?(ActiveSupport::TimeZone)
+          if value.is_a?(Time) && time_zone
             value.in_time_zone(time_zone)
           else
             value
@@ -29,7 +29,7 @@ module Greenwich
           time      = Greenwich::Utilities.coerce_to_time_without_zone(time)
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
-          value = if time.is_a?(Time) && time_zone.present?
+          value = if time.is_a?(Time) && time_zone
                     ActiveSupport::TimeWithZone.new nil, time_zone, time
                   else
                     time
