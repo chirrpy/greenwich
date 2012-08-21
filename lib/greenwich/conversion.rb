@@ -42,8 +42,8 @@ module Greenwich
           Greenwich::Utilities.coerce_to_time_zone(time_zone_name)
         end
 
-        define_method "#{name}=" do |time_zone_string|
-          time_zone = Greenwich::Utilities.coerce_to_time_zone_name(time_zone_string)
+        define_method "#{name}=" do |value|
+          time_zone = Greenwich::Utilities.coerce_to_time_zone_name(value)
           write_attribute(name, time_zone)
 
           associated_time_fields.each do |time_field|
