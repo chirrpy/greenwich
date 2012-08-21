@@ -1,8 +1,6 @@
-module Greenwich  #:nodoc:
-  module Conversion #:nodoc:
-    def self.included(base) #:nodoc:
-      base.extend ClassMethods
-    end
+module Greenwich
+  module Conversion
+    extend ActiveSupport::Concern
 
     module ClassMethods
       def time_with_time_zone(time_field, options = {})
