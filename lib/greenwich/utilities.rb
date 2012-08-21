@@ -16,11 +16,11 @@ module Greenwich
       Greenwich::Utilities.coerce_to_time_zone(time_zone_name)
     end
 
-    def self.coerce_to_time_zone(name)
-      return nil  if name.nil?
-      return name if name.is_a? ActiveSupport::TimeZone
+    def self.coerce_to_time_zone(value)
+      return nil   if value.nil?
+      return value if value.is_a? ActiveSupport::TimeZone
 
-      ActiveSupport::TimeZone.new(name)
+      ActiveSupport::TimeZone.new(value)
     end
 
     def self.coerce_to_time_without_zone(value)
