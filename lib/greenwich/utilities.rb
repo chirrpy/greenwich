@@ -23,6 +23,10 @@ module Greenwich
       ActiveSupport::TimeZone.new(value)
     end
 
+    def self.coerce_to_time_zone_name(value)
+      coerce_to_time_zone(value).try(:name)
+    end
+
     def self.coerce_to_time_without_zone(value)
       return value if value.is_a?(Time)
 

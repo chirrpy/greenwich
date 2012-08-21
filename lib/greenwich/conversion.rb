@@ -43,7 +43,7 @@ module Greenwich
         end
 
         define_method "#{name}=" do |time_zone_string|
-          time_zone = Greenwich::Utilities.coerce_to_time_zone(time_zone_string).try(:name)
+          time_zone = Greenwich::Utilities.coerce_to_time_zone_name(time_zone_string)
           write_attribute(name, time_zone)
 
           options[:for].each do |time_field|
