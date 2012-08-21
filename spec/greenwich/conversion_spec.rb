@@ -114,34 +114,10 @@ describe Greenwich::Conversion do
         end
 
         context 'and the field is set to something which cannot be converted to a time' do
-          before { model.started_at = 5 }
-
-          it 'the time field is nil' do
-            raw_started_at.should be_nil
-          end
-        end
-
-        context 'and the field is set to something which cannot be properly converted to a time' do
           before { model.started_at = 'foo' }
 
           it 'the time field is nil' do
             raw_started_at.should be_nil
-          end
-        end
-
-        context 'and the field is set with a string that does not contain a UTC offset' do
-          before { model.started_at = '2012-01-02 12:59:01' }
-
-          it 'the time field is adjusted for the time zone' do
-            raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
-          end
-        end
-
-        context 'and the field is set with a string that does contain a UTC offset' do
-          before { model.started_at = '2012-01-02 12:59:01 -0800'}
-
-          it 'the time field ignores any time zone offset information' do
-            raw_started_at.should eql Time.utc(2012, 1, 2, 21, 59, 1)
           end
         end
 

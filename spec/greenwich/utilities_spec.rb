@@ -124,4 +124,56 @@ describe Greenwich::Utilities do
       end
     end
   end
+
+  describe '.coerce_to_time_without_zone' do
+    subject { Greenwich::Utilities.coerce_to_time_without_zone value }
+
+    context 'when nil is passed in' do
+      let(:value) { nil }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when something which cannot be converted to a time is passed in' do
+      let(:value) { 5 }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when something which cannot be properly converted to a time is passed in' do
+      let(:value) { 'foo' }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when a string that does not contain a UTC offset is passed in' do
+      let(:value) { '2012-01-02 12:59:01' }
+
+      it 'is the UTC representation of that time' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+    end
+
+    context 'when a string that does contain a UTC offset is passed in' do
+      let(:value) { '2012-01-02 12:59:01 -0800' }
+
+      it 'is the UTC representation of that time ignoring any time zone offset information' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+    end
+
+    context 'when a UTC time is passed in' do
+      let(:value) { Time.utc(2012, 1, 2, 12, 59, 1) }
+
+      it 'is the UTC representation of that time ignoring any time zone offset information' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+    end
+  end
 end
