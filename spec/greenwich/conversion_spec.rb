@@ -196,6 +196,7 @@ describe Greenwich::Conversion do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
     let(:raw_time_field)    { model.send :read_attribute, :started_at }
+    let(:raw_time_zone)     { model.read_attribute(:time_zone) }
 
     context 'when it is set after the time field is set' do
       before do
@@ -213,7 +214,7 @@ describe Greenwich::Conversion do
 
       it 'sets the time zone but does not touch the time' do
         raw_time_field.should be_nil
-        model.read_attribute(:time_zone).should eql 'Alaska'
+        raw_time_zone.should eql 'Alaska'
       end
     end
 
@@ -221,7 +222,7 @@ describe Greenwich::Conversion do
       before { model.time_zone = alaskan_time_zone }
 
       it 'is set properly' do
-        model.read_attribute(:time_zone).should eql 'Alaska'
+        raw_time_zone.should eql 'Alaska'
       end
     end
 
@@ -229,7 +230,7 @@ describe Greenwich::Conversion do
       before { model.time_zone = 'Alaska' }
 
       it 'is set properly' do
-        model.read_attribute(:time_zone).should eql 'Alaska'
+        raw_time_zone.should eql 'Alaska'
       end
     end
 
@@ -237,7 +238,7 @@ describe Greenwich::Conversion do
       before { model.time_zone = 'I am not a time zone' }
 
       it 'is nil' do
-        model.read_attribute(:time_zone).should be_nil
+        raw_time_zone.should be_nil
       end
     end
   end
