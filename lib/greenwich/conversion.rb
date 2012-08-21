@@ -29,11 +29,11 @@ module Greenwich
           time      = Greenwich::Utilities.coerce_to_time_without_zone(value)
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
-          time  = if time.is_a?(Time) && time_zone
-                    ActiveSupport::TimeWithZone.new nil, time_zone, time
-                  else
-                    time
-                  end
+          time      = if time.is_a?(Time) && time_zone
+                        ActiveSupport::TimeWithZone.new nil, time_zone, time
+                      else
+                        time
+                      end
 
           write_attribute(time_field, time)
         end
