@@ -175,70 +175,72 @@ describe Greenwich::Conversion do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
-    context 'when the object does have a time zone' do
-      before { model.send(:write_attribute, :time_zone, alaskan_time_zone.name) }
+    context '#time_zone' do
+      context 'when the object does have a time zone' do
+        before { model.send(:write_attribute, :time_zone, alaskan_time_zone.name) }
 
-      it 'is the time zone' do
-        model.time_zone.should eql alaskan_time_zone
+        it 'is the time zone' do
+          model.time_zone.should eql alaskan_time_zone
+        end
+      end
+
+      context 'when the object does not have a time zone' do
+        before { model.send(:write_attribute, :time_zone, nil) }
+
+        it 'is nil' do
+          model.time_zone.should be_nil
+        end
       end
     end
 
-    context 'when the object does not have a time zone' do
-      before { model.send(:write_attribute, :time_zone, nil) }
+    describe '#time_zone=' do
+      let(:model)             { ModelWithTimeZone.new }
+      let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+      let(:raw_time_field)    { model.send :read_attribute, :started_at }
+      let(:raw_time_zone)     { model.read_attribute(:time_zone) }
 
-      it 'is nil' do
-        model.time_zone.should be_nil
-      end
-    end
-  end
+      context 'when it is set after the time field is set' do
+        before do
+          model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1)
+          model.time_zone = alaskan_time_zone
+        end
 
-  describe '.time_zone=' do
-    let(:model)             { ModelWithTimeZone.new }
-    let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
-    let(:raw_time_field)    { model.send :read_attribute, :started_at }
-    let(:raw_time_zone)     { model.read_attribute(:time_zone) }
-
-    context 'when it is set after the time field is set' do
-      before do
-        model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1)
-        model.time_zone = alaskan_time_zone
+        it 'triggers the time field to be converted' do
+          raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
+        end
       end
 
-      it 'triggers the time field to be converted' do
-        raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
+      context 'when it is set before the time field is set' do
+        before { model.time_zone = alaskan_time_zone }
+
+        it 'sets the time zone but does not touch the time' do
+          raw_time_field.should be_nil
+          raw_time_zone.should eql 'Alaska'
+        end
       end
-    end
 
-    context 'when it is set before the time field is set' do
-      before { model.time_zone = alaskan_time_zone }
+      context 'when it is set to an ActiveSupport::TimeZone' do
+        before { model.time_zone = alaskan_time_zone }
 
-      it 'sets the time zone but does not touch the time' do
-        raw_time_field.should be_nil
-        raw_time_zone.should eql 'Alaska'
+        it 'is set properly' do
+          raw_time_zone.should eql 'Alaska'
+        end
       end
-    end
 
-    context 'when it is set to an ActiveSupport::TimeZone' do
-      before { model.time_zone = alaskan_time_zone }
+      context 'when it is set to a time zone name' do
+        before { model.time_zone = 'Alaska' }
 
-      it 'is set properly' do
-        raw_time_zone.should eql 'Alaska'
+        it 'is set properly' do
+          raw_time_zone.should eql 'Alaska'
+        end
       end
-    end
 
-    context 'when it is set to a time zone name' do
-      before { model.time_zone = 'Alaska' }
+      context 'when it is set to an invalid time zone' do
+        before { model.time_zone = 'I am not a time zone' }
 
-      it 'is set properly' do
-        raw_time_zone.should eql 'Alaska'
-      end
-    end
-
-    context 'when it is set to an invalid time zone' do
-      before { model.time_zone = 'I am not a time zone' }
-
-      it 'is nil' do
-        raw_time_zone.should be_nil
+        it 'is nil' do
+          raw_time_zone.should be_nil
+        end
       end
     end
   end
