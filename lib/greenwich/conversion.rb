@@ -16,7 +16,7 @@ module Greenwich
 
         define_method time_field do
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
-          time     = read_attribute(time_field)
+          time      = read_attribute(time_field)
 
           if time && time_zone
             time.in_time_zone(time_zone)
