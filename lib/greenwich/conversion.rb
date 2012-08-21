@@ -55,7 +55,7 @@ module Greenwich
           end
         end
 
-        time_zone "#{time_field}_time_zone".to_sym, :for => time_field.to_sym if options[:time_zone] == time_zone_field
+        time_zone time_zone_field.to_sym, :for => time_field.to_sym
       end
 
       def time_zone(name, options = {})
