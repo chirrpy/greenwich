@@ -25,17 +25,17 @@ module Greenwich
           end
         end
 
-        define_method "#{time_field}=" do |time|
-          time      = Greenwich::Utilities.coerce_to_time_without_zone(time)
+        define_method "#{time_field}=" do |value|
+          time      = Greenwich::Utilities.coerce_to_time_without_zone(value)
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
 
-          value = if time.is_a?(Time) && time_zone
+          time  = if time.is_a?(Time) && time_zone
                     ActiveSupport::TimeWithZone.new nil, time_zone, time
                   else
                     time
                   end
 
-          write_attribute(time_field, value)
+          write_attribute(time_field, time)
         end
 
         time_zone time_zone_field.to_sym, :for => time_field.to_sym
