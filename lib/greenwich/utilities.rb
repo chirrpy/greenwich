@@ -23,11 +23,11 @@ module Greenwich
       ActiveSupport::TimeZone.new(name)
     end
 
-    def self.coerce_to_time_without_zone(time)
-      return time if time.is_a?(Time)
+    def self.coerce_to_time_without_zone(value)
+      return value if value.is_a?(Time)
 
-      time.gsub! /\s[-+]\d{4}$/, '' if time.respond_to? :gsub!
-      time.to_time                  if time.respond_to? :to_time
+      value.gsub! /\s[-+]\d{4}$/, '' if value.respond_to? :gsub!
+      value.to_time                  if value.respond_to? :to_time
     rescue ArgumentError
       nil
     end
