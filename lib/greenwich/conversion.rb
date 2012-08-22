@@ -6,14 +6,6 @@ module Greenwich
       def time_with_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone] || Greenwich::Utilities.get_time_zone_field(name, column_names)
 
-        define_method "#{time_field}_utc" do
-          read_attribute(time_field)
-        end
-
-        define_method "#{time_field}_utc=" do |time|
-          write_attribute(time_field, time)
-        end
-
         define_method "local_#{time_field}" do
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           time      = read_attribute(time_field)

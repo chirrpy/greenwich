@@ -18,7 +18,6 @@ class ModelWithTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
   attr_accessible :started_at,
-                  :started_at_utc,
                   :time_zone
 
   time_with_time_zone :started_at, :time_zone => :time_zone
@@ -28,33 +27,6 @@ describe Greenwich::Conversion do
   describe '.time_with_time_zone' do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
-
-    describe '#time_field_utc' do
-      context 'when the time field is set to a non-UTC time' do
-        before do
-          model.time_zone        = alaskan_time_zone
-          model.local_started_at = Time.utc(2012, 1, 1, 12, 0, 0)
-        end
-
-        it 'is the time in the UTC time zone' do
-          model.started_at_utc.should eql Time.utc(2012, 1, 1, 21, 0, 0)
-        end
-      end
-
-      context 'when the time field is not set' do
-        before do
-          model.time_zone        = alaskan_time_zone
-          model.local_started_at = nil
-        end
-
-        it 'is nil' do
-          model.started_at_utc.should be_nil
-        end
-      end
-    end
-
-    describe '#time_field_utc=' do
-    end
 
     describe '#time_field' do
       context 'when it is nil' do
