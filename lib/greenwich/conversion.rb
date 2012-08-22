@@ -6,6 +6,10 @@ module Greenwich
       def time_with_time_zone(time_field, options = {})
         time_zone_field = options[:time_zone] || Greenwich::Utilities.get_time_zone_field(name, column_names)
 
+        class_eval do
+          columns_hash["local_#{time_field}"] = ActiveRecord::ConnectionAdapters::Column.new("local_#{time_field}", nil, "datetime")
+        end
+
         define_method "local_#{time_field}" do
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           time      = read_attribute(time_field)

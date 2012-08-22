@@ -28,6 +28,16 @@ describe Greenwich::Conversion do
     let(:model)             { ModelWithTimeZone.new }
     let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
 
+    describe '.columns_hash' do
+      it 'adds the virtual column to the columns_hash for the time field' do
+        ModelWithTimeZone.columns_hash.keys.should include 'local_started_at'
+      end
+
+      it 'adds the virtual column with a `datetime` type' do
+        ModelWithTimeZone.columns_hash['local_started_at'].type.should eql :datetime
+      end
+    end
+
     describe '#time_field' do
       context 'when it is nil' do
         before { model.started_at = nil }
