@@ -32,7 +32,7 @@ describe Greenwich::Conversion do
     describe '#time_field_utc' do
       context 'when the time field is set to a non-UTC time' do
         before do
-          model.time_zone  = alaskan_time_zone
+          model.time_zone        = alaskan_time_zone
           model.local_started_at = Time.utc(2012, 1, 1, 12, 0, 0)
         end
 
@@ -43,7 +43,7 @@ describe Greenwich::Conversion do
 
       context 'when the time field is not set' do
         before do
-          model.time_zone  = alaskan_time_zone
+          model.time_zone        = alaskan_time_zone
           model.local_started_at = nil
         end
 
@@ -154,7 +154,7 @@ describe Greenwich::Conversion do
     context 'when it is saved to the database and reloaded' do
       before do
         model.local_started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-        model.time_zone  = 'Alaska'
+        model.time_zone        = 'Alaska'
         model.save!
 
         model.reload
@@ -202,7 +202,7 @@ describe Greenwich::Conversion do
       context 'when it is set after the time field is set' do
         before do
           model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-          model.time_zone = alaskan_time_zone
+          model.time_zone  = alaskan_time_zone
         end
 
         it 'triggers the time field to be converted' do
