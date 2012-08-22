@@ -34,7 +34,7 @@ module Greenwich
       end
 
       def time_zone(name, options = {})
-        associated_time_fields = [options[:for]].compact unless options[:for].is_a? Array
+        associated_time_fields = Array.wrap options[:for]
 
         define_method name do
           time_zone_name = read_attribute(name)
