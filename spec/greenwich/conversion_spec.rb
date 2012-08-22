@@ -58,7 +58,7 @@ describe Greenwich::Conversion do
 
     describe '#time_field' do
       context 'when it is nil' do
-        before { model.send :write_attribute, :started_at, nil }
+        before { model.started_at = nil }
 
         it 'is nil' do
           model.local_started_at.should be_nil
@@ -69,7 +69,7 @@ describe Greenwich::Conversion do
         let(:raw_time_value) { Time.utc(2012, 1, 1, 12, 0, 0) }
 
         before do
-          model.send :write_attribute, :started_at, raw_time_value
+          model.started_at = raw_time_value
           model.stub(:time_zone).and_return nil
         end
 
@@ -79,7 +79,7 @@ describe Greenwich::Conversion do
       end
 
       context 'when it is something other than a Time' do
-        before { model.send :write_attribute, :started_at, 5 }
+        before { model.started_at = 5 }
 
         it 'returns the raw value' do
           model.local_started_at.should eql 5
@@ -90,7 +90,7 @@ describe Greenwich::Conversion do
         before { model.stub(:time_zone).and_return 'Alaska' }
 
         context 'when it is a time' do
-          before { model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'returns the time in the time zone' do
             model.local_started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
@@ -201,7 +201,7 @@ describe Greenwich::Conversion do
 
       context 'when it is set after the time field is set' do
         before do
-          model.send :write_attribute, :started_at, Time.utc(2012, 1, 2, 12, 59, 1)
+          model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
           model.time_zone = alaskan_time_zone
         end
 
