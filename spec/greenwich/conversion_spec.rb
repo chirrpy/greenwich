@@ -100,7 +100,7 @@ describe Greenwich::Conversion do
     end
 
     describe '#time_field=' do
-      let(:raw_time_field) { model.read_attribute(:started_at) }
+      let(:raw_time_field) { model.started_at }
 
       context 'when the time zone is set' do
         before { model.stub(:time_zone).and_return alaskan_time_zone.name }
@@ -196,7 +196,7 @@ describe Greenwich::Conversion do
     describe '#time_zone=' do
       let(:model)             { ModelWithTimeZone.new }
       let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
-      let(:raw_time_field)    { model.send :read_attribute, :started_at }
+      let(:raw_time_field)    { model.started_at }
       let(:raw_time_zone)     { model.read_attribute(:time_zone) }
 
       context 'when it is set after the time field is set' do
