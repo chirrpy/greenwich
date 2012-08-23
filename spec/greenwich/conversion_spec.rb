@@ -10,17 +10,17 @@ ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
 
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_time_zones'")
 ActiveRecord::Base.connection.create_table(:model_with_time_zones) do |t|
-  t.datetime :started_at
+  t.datetime :started_at_utc
   t.string   :time_zone
 end
 
 class ModelWithTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
-  attr_accessible :started_at,
+  attr_accessible :started_at_utc,
                   :time_zone
 
-  time_with_time_zone :started_at, :time_zone => :time_zone
+  time_with_time_zone :started_at_utc, :time_zone => :time_zone
 end
 
 describe Greenwich::Conversion do
@@ -30,20 +30,20 @@ describe Greenwich::Conversion do
 
     describe '.columns_hash' do
       it 'adds the virtual column to the columns_hash for the time field' do
-        ModelWithTimeZone.columns_hash.keys.should include 'local_started_at'
+        ModelWithTimeZone.columns_hash.keys.should include 'started_at'
       end
 
       it 'adds the virtual column with a `datetime` type' do
-        ModelWithTimeZone.columns_hash['local_started_at'].type.should eql :datetime
+        ModelWithTimeZone.columns_hash['started_at'].type.should eql :datetime
       end
     end
 
     describe '#time_field' do
       context 'when it is nil' do
-        before { model.started_at = nil }
+        before { model.started_at_utc = nil }
 
         it 'is nil' do
-          model.local_started_at.should be_nil
+          model.started_at.should be_nil
         end
       end
 
@@ -51,20 +51,20 @@ describe Greenwich::Conversion do
         let(:raw_time_value) { Time.utc(2012, 1, 1, 12, 0, 0) }
 
         before do
-          model.started_at = raw_time_value
+          model.started_at_utc = raw_time_value
           model.stub(:time_zone).and_return nil
         end
 
         it 'returns the raw time field' do
-          model.local_started_at.should eql raw_time_value
+          model.started_at.should eql raw_time_value
         end
       end
 
       context 'when it is something other than a Time' do
-        before { model.started_at = 5 }
+        before { model.started_at_utc = 5 }
 
         it 'returns the raw value' do
-          model.local_started_at.should eql 5
+          model.started_at.should eql 5
         end
       end
 
@@ -72,23 +72,23 @@ describe Greenwich::Conversion do
         before { model.stub(:time_zone).and_return 'Alaska' }
 
         context 'when it is a time' do
-          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'returns the time in the time zone' do
-            model.local_started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
+            model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
           end
         end
       end
     end
 
     describe '#time_field=' do
-      let(:raw_time_field) { model.started_at }
+      let(:raw_time_field) { model.started_at_utc }
 
       context 'when the time zone is set' do
         before { model.stub(:time_zone).and_return alaskan_time_zone.name }
 
         context 'and the field is set to nil' do
-          before { model.local_started_at = nil }
+          before { model.started_at = nil }
 
           it 'the time field is nil' do
             raw_time_field.should be_nil
@@ -96,7 +96,7 @@ describe Greenwich::Conversion do
         end
 
         context 'and the field is set to something which cannot be converted to a time' do
-          before { model.local_started_at = 'foo' }
+          before { model.started_at = 'foo' }
 
           it 'the time field is nil' do
             raw_time_field.should be_nil
@@ -104,7 +104,7 @@ describe Greenwich::Conversion do
         end
 
         context 'and the field is set with UTC time' do
-          before { model.local_started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'the time field is adjusted for the time zone' do
             raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
@@ -116,7 +116,7 @@ describe Greenwich::Conversion do
         before { model.stub(:time_zone).and_return nil }
 
         context 'and the time field is set' do
-          before { model.local_started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'the time field is not adjusted' do
             raw_time_field.should eql Time.utc(2012, 1, 2, 12, 59, 1)
@@ -124,7 +124,7 @@ describe Greenwich::Conversion do
         end
 
         context 'and the time field is not set' do
-          before { model.local_started_at = nil }
+          before { model.started_at = nil }
 
           it 'the time field is nil' do
             raw_time_field.should be_nil
@@ -135,7 +135,7 @@ describe Greenwich::Conversion do
 
     context 'when it is saved to the database and reloaded' do
       before do
-        model.local_started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+        model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
         model.time_zone        = 'Alaska'
         model.save!
 
@@ -143,12 +143,12 @@ describe Greenwich::Conversion do
       end
 
       it 'converts the time field to the local time' do
-        model.local_started_at.should_not be_utc
-        model.local_started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
+        model.started_at.should_not be_utc
+        model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
       end
 
       it 'converts the time field to a TimeWithZone' do
-        model.local_started_at.should be_a ActiveSupport::TimeWithZone
+        model.started_at.should be_a ActiveSupport::TimeWithZone
       end
     end
   end
@@ -178,12 +178,12 @@ describe Greenwich::Conversion do
     describe '#time_zone=' do
       let(:model)             { ModelWithTimeZone.new }
       let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
-      let(:raw_time_field)    { model.started_at }
+      let(:raw_time_field)    { model.started_at_utc }
       let(:raw_time_zone)     { model.read_attribute(:time_zone) }
 
       context 'when it is set after the time field is set' do
         before do
-          model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
+          model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1)
           model.time_zone  = alaskan_time_zone
         end
 
