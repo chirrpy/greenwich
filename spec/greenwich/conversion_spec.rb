@@ -11,6 +11,7 @@ ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_time_zones'")
 ActiveRecord::Base.connection.create_table(:model_with_time_zones) do |t|
   t.datetime :started_at_utc
+  t.datetime :ended_at_utc
   t.string   :time_zone
 end
 
@@ -18,9 +19,13 @@ class ModelWithTimeZone < ActiveRecord::Base
   include Greenwich::Conversion
 
   attr_accessible :started_at_utc,
+                  :ended_at_utc,
                   :time_zone
 
   time_with_time_zone :started_at_utc, :time_zone => :time_zone
+  time_with_time_zone :ended_at_utc,   :time_zone => :time_zone
+
+  time_zone :time_zone, :for => [:started_at_utc, :ended_at_utc]
 end
 
 describe Greenwich::Conversion do
