@@ -24,6 +24,8 @@ module Greenwich
           time      = Greenwich::Utilities.coerce_to_time_without_zone(value)
           time      = ActiveSupport::TimeWithZone.new(nil, time_zone, time) if time && time_zone
 
+          greenwich_time_fields_converted["#{time_field}_utc"] = true unless time_zone.nil?
+
           write_attribute(utc_time_field, time)
         end
 

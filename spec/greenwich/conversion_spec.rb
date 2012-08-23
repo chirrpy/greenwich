@@ -90,13 +90,17 @@ describe Greenwich::Conversion do
       let(:raw_time_field) { model.started_at_utc }
 
       context 'when the time zone is set' do
-        before { model.stub(:time_zone).and_return alaskan_time_zone.name }
+        before { model.time_zone = alaskan_time_zone.name }
 
         context 'and the field is set to nil' do
           before { model.started_at = nil }
 
           it 'the time field is nil' do
             raw_time_field.should be_nil
+          end
+
+          it 'does not need to be converted' do
+            model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_false
           end
         end
 
@@ -106,6 +110,10 @@ describe Greenwich::Conversion do
           it 'the time field is nil' do
             raw_time_field.should be_nil
           end
+
+          it 'does not need to be converted' do
+            model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_false
+          end
         end
 
         context 'and the field is set with UTC time' do
@@ -114,17 +122,25 @@ describe Greenwich::Conversion do
           it 'the time field is adjusted for the time zone' do
             raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
           end
+
+          it 'does not need to be converted' do
+            model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_false
+          end
         end
       end
 
       context 'when the time zone is not set' do
-        before { model.stub(:time_zone).and_return nil }
+        before { model.time_zone = nil }
 
         context 'and the time field is set' do
           before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'the time field is not adjusted' do
             raw_time_field.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+
+          it 'needs to be converted' do
+            model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_true
           end
         end
 
@@ -133,6 +149,10 @@ describe Greenwich::Conversion do
 
           it 'the time field is nil' do
             raw_time_field.should be_nil
+          end
+
+          it 'does not need to be converted' do
+            model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_false
           end
         end
       end
