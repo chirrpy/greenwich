@@ -186,8 +186,8 @@ describe Greenwich::Conversion do
 
     context 'when it is saved to the database and reloaded' do
       before do
-        model.started_at = Time.utc(2012, 1, 2, 12, 59, 1)
-        model.time_zone        = 'Alaska'
+        model.started_at_utc = Time.utc(2012, 1, 2, 21, 59, 1)
+        model.time_zone      = 'Alaska'
         model.save!
 
         model.reload
