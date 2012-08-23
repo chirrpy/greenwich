@@ -193,6 +193,14 @@ describe Greenwich::Conversion do
         model.reload
       end
 
+      context 'and the time zone is set' do
+        before { model.time_zone = 'Hawaii' }
+
+        it 'does not modify the UTC time' do
+          model.started_at_utc.should eql Time.utc(2012, 1, 2, 21, 59, 1)
+        end
+      end
+
       it 'converts the time field to the local time' do
         model.started_at.should_not be_utc
         model.started_at.should eql alaskan_time_zone.parse('2012-01-02 12:59:01')
