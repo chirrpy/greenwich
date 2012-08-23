@@ -9,12 +9,6 @@ module Greenwich
 
         class_eval do
           columns_hash[time_field] = ActiveRecord::ConnectionAdapters::Column.new(time_field, nil, "datetime")
-        private
-          def greenwich_time_field_needs_conversion?(time_field, time_zone_field)
-            (send("#{time_zone_field}_was".to_sym).nil? || send("#{time_field}_utc_was").nil?) &&
-              read_attribute("#{time_field}_utc").present? &&
-              self.greenwich_time_fields_converted["#{time_field}_utc"].nil?
-          end
         end
 
         define_method time_field do
@@ -67,6 +61,13 @@ module Greenwich
 
       def greenwich_time_fields_converted=(value)
         @greenwich_time_fields_converted = value
+      end
+
+    private
+      def greenwich_time_field_needs_conversion?(time_field, time_zone_field)
+        (send("#{time_zone_field}_was".to_sym).nil? || send("#{time_field}_utc_was").nil?) &&
+          read_attribute("#{time_field}_utc").present? &&
+          self.greenwich_time_fields_converted["#{time_field}_utc"].nil?
       end
     end
   end
