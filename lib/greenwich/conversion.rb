@@ -56,7 +56,6 @@ module Greenwich
       end
     end
 
-    module InstanceMethods
       def greenwich_time_fields_converted
         @greenwich_time_fields_converted ||= {}
       end
@@ -72,7 +71,6 @@ module Greenwich
           self.greenwich_time_fields_converted["#{time_field}_utc"].nil?
       end
     end
-  end
 end
 
 ActiveRecord::Base.send :include, Greenwich::Conversion
