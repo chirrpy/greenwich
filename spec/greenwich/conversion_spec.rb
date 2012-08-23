@@ -184,7 +184,7 @@ describe Greenwich::Conversion do
       context 'when it is set after the time field is set' do
         before do
           model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1)
-          model.time_zone  = alaskan_time_zone
+          model.time_zone      = alaskan_time_zone
         end
 
         it 'triggers the time field to be converted' do
