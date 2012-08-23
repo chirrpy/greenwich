@@ -183,6 +183,7 @@ describe Greenwich::Conversion do
     describe '#time_zone=' do
       let(:model)             { ModelWithTimeZone.new }
       let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+      let(:hawaii_time_zone)  { ActiveSupport::TimeZone.new('Hawaii') }
       let(:raw_time_field)    { model.started_at_utc }
       let(:raw_time_zone)     { model.read_attribute(:time_zone) }
 
@@ -194,6 +195,30 @@ describe Greenwich::Conversion do
 
         it 'triggers the time field to be converted' do
           raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
+        end
+
+        context 'but when it is set subsequently' do
+          before do
+            model.time_zone.should_not      be_nil
+            model.started_at_utc.should_not be_nil
+            model.time_zone               = hawaii_time_zone
+          end
+
+          it 'does not convert the time field' do
+            raw_time_field.should eql Time.utc(2012, 1, 2, 21, 59, 1)
+          end
+
+          context 'if some other time field is then set' do
+            before do
+              model.ended_at_utc = Time.utc(2012, 1, 2, 13, 59, 1)
+              model.time_zone    = alaskan_time_zone
+            end
+
+            it 'converts only the time fields that have not already been converted' do
+              raw_time_field.should eql     Time.utc(2012, 1, 2, 21, 59, 1)
+              model.ended_at_utc.should eql Time.utc(2012, 1, 2, 22, 59, 1)
+            end
+          end
         end
       end
 
