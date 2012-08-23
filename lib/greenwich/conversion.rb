@@ -11,6 +11,12 @@ module Greenwich
           columns_hash[time_field] = ActiveRecord::ConnectionAdapters::Column.new(time_field, nil, "datetime")
         end
 
+        define_method "#{time_field}_utc=" do |value|
+          greenwich_time_fields_converted["#{time_field}_utc"] = true
+
+          super(value)
+        end
+
         define_method time_field do
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           time      = read_attribute(utc_time_field)

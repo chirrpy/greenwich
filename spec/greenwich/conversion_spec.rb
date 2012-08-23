@@ -43,6 +43,32 @@ describe Greenwich::Conversion do
       end
     end
 
+    describe '#time_field_utc=' do
+      let(:model)             { ModelWithTimeZone.new }
+      let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+      let(:raw_time_field)    { model.send(:read_attribute, :started_at_utc) }
+
+      context 'when the time field is set via the writer' do
+        before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+
+        it 'is not changed' do
+          raw_time_field.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+        end
+
+        it 'is not eligible for conversion' do
+          model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_false
+        end
+
+        context 'and the time zone is subsequently set' do
+          before { model.time_zone = alaskan_time_zone }
+
+          it 'is not changed' do
+            raw_time_field.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+          end
+        end
+      end
+    end
+
     describe '#time_field' do
       context 'when it is nil' do
         before { model.send :write_attribute, :started_at_utc, nil }
