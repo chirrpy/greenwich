@@ -45,7 +45,7 @@ describe Greenwich::Conversion do
 
     describe '#time_field' do
       context 'when it is nil' do
-        before { model.started_at_utc = nil }
+        before { model.send :write_attribute, :started_at_utc, nil }
 
         it 'is nil' do
           model.started_at.should be_nil
@@ -56,7 +56,7 @@ describe Greenwich::Conversion do
         let(:raw_time_value) { Time.utc(2012, 1, 1, 12, 0, 0) }
 
         before do
-          model.started_at_utc = raw_time_value
+          model.send :write_attribute, :started_at_utc, raw_time_value
           model.stub(:time_zone).and_return nil
         end
 
@@ -66,7 +66,7 @@ describe Greenwich::Conversion do
       end
 
       context 'when it is something other than a Time' do
-        before { model.started_at_utc = 5 }
+        before { model.send :write_attribute, :started_at_utc, 5 }
 
         it 'returns the raw value' do
           model.started_at.should eql 5
@@ -77,7 +77,7 @@ describe Greenwich::Conversion do
         before { model.stub(:time_zone).and_return 'Alaska' }
 
         context 'when it is a time' do
-          before { model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.send :write_attribute, :started_at_utc, Time.utc(2012, 1, 2, 12, 59, 1) }
 
           it 'returns the time in the time zone' do
             model.started_at.should eql alaskan_time_zone.parse('2012-01-02 3:59:01')
@@ -189,7 +189,7 @@ describe Greenwich::Conversion do
 
       context 'when it is set after the time field is set' do
         before do
-          model.started_at_utc = Time.utc(2012, 1, 2, 12, 59, 1)
+          model.send :write_attribute, :started_at_utc, Time.utc(2012, 1, 2, 12, 59, 1)
           model.time_zone      = alaskan_time_zone
         end
 
@@ -210,7 +210,7 @@ describe Greenwich::Conversion do
 
           context 'if some other time field is then set' do
             before do
-              model.ended_at_utc = Time.utc(2012, 1, 2, 13, 59, 1)
+              model.send :write_attribute, :ended_at_utc, Time.utc(2012, 1, 2, 13, 59, 1)
               model.time_zone    = alaskan_time_zone
             end
 
