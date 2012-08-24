@@ -1,84 +1,178 @@
 require 'spec_helper'
 
 describe Greenwich::Utilities do
-  describe "#truncate" do
-    before { @expected_time = Time.utc(2011, 5, 13, 17, 31, 13, 0) }
+  describe '.get_time_zone_field' do
+    subject { Greenwich::Utilities.get_time_zone_field(name, columns) }
 
-    context "when passed a String" do
-      it "returns the correct time if no offset is given" do
-        truncated = Greenwich::Utilities.truncate("2011-05-13 17:31:13")
-        truncated.should eql @expected_time
-      end
+    let(:name) { 'foo_at' }
 
-      it "returns the correct time if an offset is given" do
-        truncated = Greenwich::Utilities.truncate("2011-05-13 17:31:13 -0600")
-        truncated.should eql @expected_time
+    context 'when columns includes a field-specific time zone field' do
+      let(:columns) { %w(foo bar foo_at_time_zone) }
+
+      it 'is the field-specific time zone field' do
+        subject.should eql 'foo_at_time_zone'
       end
     end
 
-    context "when passed a TimeWithZone" do
-      before { @time = Time.utc(2011, 5, 13, 17, 31, 13) }
+    context 'when columns does not include a field-specific time zone field' do
+      context 'but does include the general time zone field' do
+        let(:columns) { %w(foo bar time_zone) }
 
-      it "returns the correct time if TimeWithZone is UTC" do
-        utc_time_zone = ActiveSupport::TimeZone.new('UTC')
-        time_with_zone = ActiveSupport::TimeWithZone.new(@time, utc_time_zone)
-
-        truncated = Greenwich::Utilities.truncate(time_with_zone)
-        truncated.should eql @expected_time
+        it 'is the general time zone field' do
+          subject.should eql 'time_zone'
+        end
       end
 
-      it "returns the correct time if TimeWithZone is not UTC" do
-        alaskan_time_zone = ActiveSupport::TimeZone.new('Alaska')
-        time_with_zone = ActiveSupport::TimeWithZone.new(nil, alaskan_time_zone, @time)
+      context 'and does not include the general time zone field' do
+        let(:columns) { %w(foo bar) }
 
-        truncated = Greenwich::Utilities.truncate(time_with_zone)
-        truncated.should eql @expected_time
-      end
-    end
-
-    context "when passed a DateTime" do
-      it "returns the correct time if DateTime is UTC" do
-        datetime = DateTime.civil(2011, 5, 13, 17, 31, 13, 0)
-
-        truncated = Greenwich::Utilities.truncate(datetime)
-        truncated.should eql @expected_time
-      end
-
-      it "returns the correct time if DateTime is not UTC" do
-        datetime = DateTime.civil(2011, 5, 13, 17, 31, 13, -0.25)
-
-        truncated = Greenwich::Utilities.truncate(datetime)
-        truncated.should eql @expected_time
+        it 'is nil' do
+          subject.should be_nil
+        end
       end
     end
   end
 
-  describe "#get_time_zone" do
-    context "when passed a valid time zone" do
-      it "returns that time zone" do
-        time_zone = Greenwich::Utilities.get_time_zone(nil, 'foo')
-        time_zone.should eql 'foo'
+  describe '.get_time_zone' do
+    subject { Greenwich::Utilities.get_time_zone model, 'time_zone' }
+
+    context 'when the object does not have a time zone' do
+      context 'because it does not exist' do
+        let(:model) { stub :time_zone => nil }
+
+        it 'is nil' do
+          subject.should be_nil
+        end
+      end
+
+      context 'because it cannot be found' do
+        let(:model) { Object.new.stub(:time_zone).and_raise NoMethodError }
+
+        it 'is nil' do
+          subject.should be_nil
+        end
+      end
+
+      context 'because it is not valid' do
+        let(:model) { stub :time_zone => "Look at me! I'm an invalid time zone!" }
+
+        it 'is nil' do
+          subject.should be_nil
+        end
       end
     end
 
-    context "when not passed a time zone" do
-      before { @time = Time.utc(2011, 5, 13, 17, 31, 13) }
+    context 'when the object does have a time zone' do
+      context 'because it is a time zone' do
+        let(:model) { stub :time_zone => ActiveSupport::TimeZone.new('Alaska') }
 
-      context "and passed a TimeWithZone for the time" do
-        it "returns the time zone associated with the time" do
-          alaskan_time_zone = ActiveSupport::TimeZone.new('Alaska')
-          time_with_zone = ActiveSupport::TimeWithZone.new(nil, alaskan_time_zone, @time)
-
-          time_zone = Greenwich::Utilities.get_time_zone(time_with_zone, nil)
-          time_zone.should eql alaskan_time_zone
+        it 'is the proper time zone object' do
+          subject.should eql ActiveSupport::TimeZone.new('Alaska')
         end
+      end
 
-        it "returns the time zone associated with the time" do
-          utc_time_zone = ActiveSupport::TimeZone.new('UTC')
+      context 'because it is a valid time zone string' do
+        let(:model) { stub :time_zone => 'Alaska' }
 
-          time_zone = Greenwich::Utilities.get_time_zone(@time, nil)
-          time_zone.should eql utc_time_zone
+        it 'is the proper time zone object' do
+          subject.should eql ActiveSupport::TimeZone.new('Alaska')
         end
+      end
+    end
+  end
+
+  describe '.coerce_to_time_zone' do
+    subject { Greenwich::Utilities.coerce_to_time_zone(value) }
+
+    context 'when the value is nil' do
+      let(:value) { nil }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when the value is blank' do
+      let(:value) { '' }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when the value is not the name of a valid time zone' do
+      let(:value) { 'foo' }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when the value is the name of a valid time zone' do
+      let(:value) { 'Alaska' }
+
+      it 'is the corresponding TimeZone' do
+        subject.should eql ActiveSupport::TimeZone.new('Alaska')
+      end
+    end
+
+    context 'when the value is a time zone' do
+      let(:value) { ActiveSupport::TimeZone.new('Alaska') }
+
+      it 'is the time zone' do
+        subject.should eql value
+      end
+    end
+  end
+
+  describe '.coerce_to_time_without_zone' do
+    subject { Greenwich::Utilities.coerce_to_time_without_zone value }
+
+    context 'when nil is passed in' do
+      let(:value) { nil }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when something which cannot be converted to a time is passed in' do
+      let(:value) { 5 }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when something which cannot be properly converted to a time is passed in' do
+      let(:value) { 'foo' }
+
+      it 'is nil' do
+        subject.should be_nil
+      end
+    end
+
+    context 'when a string that does not contain a UTC offset is passed in' do
+      let(:value) { '2012-01-02 12:59:01' }
+
+      it 'is the UTC representation of that time' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+    end
+
+    context 'when a string that does contain a UTC offset is passed in' do
+      let(:value) { '2012-01-02 12:59:01 -0800' }
+
+      it 'is the UTC representation of that time ignoring any time zone offset information' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
+      end
+    end
+
+    context 'when a UTC time is passed in' do
+      let(:value) { Time.utc(2012, 1, 2, 12, 59, 1) }
+
+      it 'is the UTC representation of that time ignoring any time zone offset information' do
+        subject.should eql Time.utc(2012, 1, 2, 12, 59, 1)
       end
     end
   end

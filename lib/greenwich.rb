@@ -1,5 +1,7 @@
-require "greenwich/version"
-require "greenwich/utilities"
-require "greenwich/time_with_zone"
-require "greenwich/rails"
-
+require 'tzinfo'
+require 'active_record'
+require 'active_support/all'
+require 'greenwich/conversion'
+require 'greenwich/time_zone'
+require 'greenwich/utilities'
+require 'greenwich/version'

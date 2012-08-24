@@ -6,22 +6,34 @@ module Greenwich
       get_target_column(target_columns, columns)
     end
 
-    def self.get_time_field(name, columns)
-      target_columns = ["#{name}_at", "#{name}_datetime", "#{name}_time"]
-
-      get_target_column(target_columns, columns)
-    end
-
-    def self.get_time_zone_from(value)
-      return nil if [nil, ''].include? value
-
+    def self.get_time_zone(object, time_zone_field_name)
       begin
-        value = ActiveSupport::TimeZone.new(value) unless value.is_a? ActiveSupport::TimeZone
-      rescue ArgumentError
-        raise ArgumentError, "'#{value}' cannot be converted into a TimeZone."
+        time_zone_name = object.send(time_zone_field_name.to_sym)
+      rescue
+        time_zone_name = ''
       end
 
-      value
+      Greenwich::Utilities.coerce_to_time_zone(time_zone_name)
+    end
+
+    def self.coerce_to_time_zone(value)
+      return nil   if value.nil?
+      return value if value.is_a? ActiveSupport::TimeZone
+
+      ActiveSupport::TimeZone.new(value)
+    end
+
+    def self.coerce_to_time_zone_name(value)
+      coerce_to_time_zone(value).try(:name)
+    end
+
+    def self.coerce_to_time_without_zone(value)
+      return value if value.is_a?(Time)
+
+      value.gsub! /\s[-+]\d{4}$/, '' if value.respond_to? :gsub!
+      value.to_time                  if value.respond_to? :to_time
+    rescue ArgumentError
+      nil
     end
 
   private

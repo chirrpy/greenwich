@@ -11,9 +11,9 @@ Gem::Specification.new do |s|
   s.version           = Greenwich::VERSION
   s.platform          = Gem::Platform::RUBY
 
-  s.authors           = ["thekompanee", "jfelchner"]
-  s.email             = ["support@thekompanee.com"]
-  s.homepage          = "http://github.com/jfelchner/greenwich"
+  s.authors           = ["jfelchner", "m5rk"]
+  s.email             = ["jeff+greenwich@chirrpy.com"]
+  s.homepage          = "http://github.com/chirrpy/greenwich"
 
   s.summary           = %q{Allowing users to select dates with custom time zones since 2011.}
   s.description       = %q{Store all of your times in the database as UTC but want to give your users the ability to choose a custom time zone for each instance of a DateTime field?}
@@ -28,9 +28,13 @@ Gem::Specification.new do |s|
   s.require_paths     = ["lib"]
   #= Manifest =#
 
-  s.add_dependency('activerecord', '~> 3.0')
+  s.add_dependency('activerecord',  '~> 3.0')
+  s.add_dependency('activesupport', '~> 3.0')
+  s.add_dependency('tzinfo',        '~> 0.3')
 
   s.add_development_dependency('bundler',   '~> 1.0')
   s.add_development_dependency('rspec',     '~> 2.6')
   s.add_development_dependency('yard',      '~> 0.7')
+  s.add_development_dependency('sqlite3',   '~> 1.3')
+  s.add_development_dependency('pry')
 end
