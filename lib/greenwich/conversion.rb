@@ -5,7 +5,7 @@ module Greenwich
     module ClassMethods
       def time_with_time_zone(utc_time_field, options = {})
         time_field      = utc_time_field.to_s.gsub /_utc$/, ''
-        time_zone_field = options[:time_zone] || Greenwich::Utilities.get_time_zone_field(name, column_names)
+        time_zone_field = options[:time_zone] || "#{time_field}_time_zone"
 
         class_eval do
           columns_hash[time_field] = ActiveRecord::ConnectionAdapters::Column.new(time_field, nil, "datetime")
