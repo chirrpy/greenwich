@@ -29,90 +29,95 @@ Initialization
 
 You add Greenwich to your models like so:
 
-    date_with_time_zone :field_name
+    time_with_time_zone :your_column_name_utc
 
-Meta-Programming Magic
---------------------------------
+By default, Greenwich removes the `_utc` from the column name and uses
+the resulting string as the composed field.
 
-By default Greenwich looks for a few different columns in your model depending on the
-field name you passed in.  Let's look at some examples.
+For example, the above call would result in a composed field called
+`your_column_name`.
 
-**DateTime Field Lookup**
+### Time Zones ###
 
-Greenwich will lookup `:field_name` based on a couple different standard column suffixes.
+Greenwich will try to use convention to choose a time zone column name
+based on the time field you choose.
 
-  * `_at`
-  * `_datetime`
+    time_with_time_zone :started_at_utc
 
-For example, if you specify:
+Will look for a column called `started_at_time_zone` which contains the
+time zone for the time field.
 
-    date_with_time_zone :start
+#### Custom Time Zone ####
 
-Greenwich will look for the columns `start_at` and `start_datetime` (in that order).
+If you want to use the same time zone for multiple time fields or just
+don't like the custom one we choose for you, you can pass a `:time_zone`
+option which will override our default.
 
-**Time Zone Field Lookup**
+    time_with_time_zone :started_at_utc, :time_zone => :started_at_zone
 
-Time Zone lookups default to a per-field or per-model specification.  If you specify:
+Will tell Greenwich that when the user accesses the `started_at` method,
+it will use the information from the `started_at_zone` column for its
+time zone.
 
-    date_with_time_zone :start
+### Convention... but missing a little configuration ###
 
-Greenwich will lookup the time zone from `:start_time_zone` first, and if it doesn't
-find a field by that name, it will use `:time_zone`.
+We're on `v1.0.0` and have more features planned in the future, however
+for now, all columns passed to `time_with_time_zone` _must_ end in `_utc`.
 
 Usage
 --------------------------------
-  * **Note:** _These examples assume the application's default time zone is set to UTC.
-    If you have modified the default time zone, directly accessing your DateTime field
-    will render it in _that_ time zone and not UTC._
+  **Note:** _These examples assume the application's default time zone is set to UTC.
+  If you have modified the default time zone, directly accessing your DateTime field
+  will render it in **that** time zone and not UTC._
 
 When working with your instances, Greenwich will convert to the proper time zone when
-you access it.  So if you've previously saved a DateTime like this:
+you access it.  So if you've defined a Greenwich time field like this:
 
-    my_model.start = Time.strptime('2011-07-04 13:00:00 -600 CST')
+    time_with_time_zone :started_at_utc
+
+And if you've previously saved a DateTime like this:
+
+    my_model.started_at_utc       = Time.utc(2011, 7, 4, 13, 0, 0)
+    my_model.started_at_time_zone = 'Alaska'
 
 Then that will result in your model returning the following values (assuming these
 particular columns exist in the database):
 
-    my_model.start_at           # => 2011-07-04 19:00:00 GMT
-    my_model.start_datetime     # => 2011-07-04 19:00:00 GMT
-    my_model.start_time_zone    # => 'Central Standard Time'
-    my_model.time_zone          # => 'Central Standard Time'
+    my_model.started_at_utc         # => ActiveSupport::TimeWithZone 2011-07-04 13:00:00 UTC
+    my_model.started_at_time_zone   # => ActiveSupport::TimeZone     'Alaska'
 
-Whereas asking Greenwich for the value of `start` will result in:
+Whereas asking Greenwich for the value of `started_at` will result in:
 
-    my_model.start              # => 2011-07-04 13:00:00 CST
+    my_model.started_at             # => ActiveSupport::TimeWithZone 2011-07-04 04:00:00 AKDT
 
 If you then change your time zone:
 
-    my_model.start_time_zone = 'Eastern Standard Time'
+    my_model.started_at_time_zone = 'Hawaii'
 
 Then calling the attributes on your model will result in the following:
 
-    my_model.start_at           # => 2011-07-04 19:00:00 GMT
-    my_model.start_datetime     # => 2011-07-04 19:00:00 GMT
-    my_model.start_time_zone    # => 'Eastern Standard Time'
-    my_model.time_zone          # => 'Eastern Standard Time'
+    my_model.started_at_utc         # => ActiveSupport::TimeWithZone 2011-07-04 13:00:00 UTC
+    my_model.started_at_time_zone   # => ActiveSupport::TimeZone 'Hawaii'
 
-And again, asking Greenwich for the value of `start` will result in:
+And again, asking Greenwich for the value of `started_at` will result in:
 
-    my_model.start              # => 2011-07-04 13:00:00 EST
+    my_model.started_at             # => ActiveSupport::TimeWithZone 2011-07-04 03:00:00 HADT
 
 Issues
 ------
 
-If you have problems, please create a [Github issue](https://github.com/jfelchner/greenwich/issues).
+If you have problems, please create a [Github issue](issues).
 
 Credits
 -------
 
-![thekompanee](http://www.thekompanee.com/public_files/kompanee-github-readme-logo.png)
+![chirrpy](https://dl.dropbox.com/s/f9s2qd0kmbc8nwl/github_logo.png?dl=1)
 
-greenwich is maintained by [The Kompanee, Ltd.](http://www.thekompanee.com)
+greenwich is maintained by [Chrrpy, LLC](http://chirrpy.com)
 
-The names and logos for The Kompanee are trademarks of The Kompanee, Ltd.
+The names and logos for Chirrpy are trademarks of Chrrpy, LLC
 
 License
 -------
 
-greenwich is Copyright &copy; 2011 The Kompanee. It is free software, and may be redistributed under the terms specified in the LICENSE file.
-
+greenwich is Copyright &copy; 2011 Chirrpy. It is free software, and may be redistributed under the terms specified in the LICENSE file.

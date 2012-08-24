@@ -1,4 +1,6 @@
 source "http://rubygems.org"
 
-# Specify your gem's dependencies in greenwich.gemspec
+gem 'rake'
+
 gemspec
+
