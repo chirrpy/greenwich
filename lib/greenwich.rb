@@ -1,6 +1,7 @@
 require 'tzinfo'
 require 'active_record'
 require 'active_support/all'
+require 'greenwich/extensions/time_zone'
 require 'greenwich/conversion'
 require 'greenwich/time_zone'
 require 'greenwich/utilities'
