@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'pry'
 
 root = File.expand_path(File.join(File.dirname(__FILE__), '../..'))
 db_root = File.join(root, 'db')
