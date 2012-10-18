@@ -5,7 +5,7 @@ db_root = File.join(root, 'db')
 
 Dir.mkdir(db_root) unless File.exists?(db_root)
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
-                                        :database => "#{db_root}/conversion.db")
+                                        :database => "#{db_root}/conversion.sqlite")
 
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_time_zones'")
 ActiveRecord::Base.connection.create_table(:model_with_time_zones) do |t|
