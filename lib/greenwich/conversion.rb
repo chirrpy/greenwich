@@ -5,6 +5,7 @@ module Greenwich
     module ClassMethods
       def time_with_time_zone(utc_time_field, options = {})
         time_field      = utc_time_field.to_s.gsub /_utc$/, ''
+        date_field      = time_field.gsub(/_at\Z/, '_on')
         time_zone_field = options[:time_zone] || "#{time_field}_time_zone"
 
         class_eval do
@@ -33,6 +34,12 @@ module Greenwich
           greenwich_time_fields_converted["#{time_field}_utc"] = true unless time_zone.nil?
 
           write_attribute(utc_time_field, time)
+        end
+
+        define_method date_field do
+          return nil unless send(:"#{time_field}").respond_to? :to_date
+
+          send(:"#{time_field}").to_date
         end
 
         time_zone time_zone_field.to_sym, :for => utc_time_field.to_sym

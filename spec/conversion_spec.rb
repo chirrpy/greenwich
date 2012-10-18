@@ -1,12 +1,11 @@
 require 'spec_helper'
-require 'pry'
 
 root = File.expand_path(File.join(File.dirname(__FILE__), '../..'))
 db_root = File.join(root, 'db')
 
 Dir.mkdir(db_root) unless File.exists?(db_root)
 ActiveRecord::Base.establish_connection(:adapter => 'sqlite3',
-                                        :database => "#{db_root}/conversion.db")
+                                        :database => "#{db_root}/conversion.sqlite")
 
 ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS 'model_with_time_zones'")
 ActiveRecord::Base.connection.create_table(:model_with_time_zones) do |t|
@@ -40,6 +39,48 @@ describe Greenwich::Conversion do
 
       it 'adds the virtual column with a `datetime` type' do
         ModelWithTimeZone.columns_hash['started_at'].type.should eql :datetime
+      end
+    end
+
+    describe '#date_field' do
+      let(:model)             { ModelWithTimeZone.new }
+      let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+      let(:raw_time_field)    { model.send(:read_attribute, :started_at_utc) }
+
+      context 'when the time field is set' do
+        before { model.started_at_utc = Time.utc(2012, 1, 2, 2, 59, 1) }
+
+        context 'and the time zone is set' do
+          before { model.time_zone = alaskan_time_zone }
+
+          it 'is the proper date' do
+            model.started_on.should eql Date.new(2012, 1, 1)
+          end
+        end
+
+        context 'and the time zone is not set' do
+          it 'uses the default time zone to calculate the date' do
+            model.started_on.should eql Date.new(2012, 1, 2)
+          end
+        end
+      end
+
+      context 'when the time field is not set' do
+        before { model.started_at_utc = nil }
+
+        context 'and the time zone is set' do
+          before { model.time_zone = alaskan_time_zone }
+
+          it 'is nil' do
+            model.started_on.should be_nil
+          end
+        end
+
+        context 'and the time zone is not set' do
+          it 'is nil' do
+            model.started_on.should be_nil
+          end
+        end
       end
     end
 
