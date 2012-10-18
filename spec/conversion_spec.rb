@@ -42,6 +42,48 @@ describe Greenwich::Conversion do
       end
     end
 
+    describe '#date_field' do
+      let(:model)             { ModelWithTimeZone.new }
+      let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
+      let(:raw_time_field)    { model.send(:read_attribute, :started_at_utc) }
+
+      context 'when the time field is set' do
+        before { model.started_at_utc = Time.utc(2012, 1, 2, 2, 59, 1) }
+
+        context 'and the time zone is set' do
+          before { model.time_zone = alaskan_time_zone }
+
+          it 'is the proper date' do
+            model.started_on.should eql Date.new(2012, 1, 1)
+          end
+        end
+
+        context 'and the time zone is not set' do
+          it 'uses the default time zone to calculate the date' do
+            model.started_on.should eql Date.new(2012, 1, 2)
+          end
+        end
+      end
+
+      context 'when the time field is not set' do
+        before { model.started_at_utc = nil }
+
+        context 'and the time zone is set' do
+          before { model.time_zone = alaskan_time_zone }
+
+          it 'is nil' do
+            model.started_on.should be_nil
+          end
+        end
+
+        context 'and the time zone is not set' do
+          it 'is nil' do
+            model.started_on.should be_nil
+          end
+        end
+      end
+    end
+
     describe '#time_field_utc=' do
       let(:model)             { ModelWithTimeZone.new }
       let(:alaskan_time_zone) { ActiveSupport::TimeZone.new('Alaska') }
