@@ -20,7 +20,7 @@ module Greenwich
 
         define_method time_field do
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
-          time      = read_attribute(utc_time_field)
+          time      = send(utc_time_field)
           time      = time.in_time_zone(time_zone) if time && time_zone
 
           time
@@ -60,7 +60,7 @@ module Greenwich
 
           associated_time_fields.each do |time_field|
             if greenwich_time_field_needs_conversion?(time_field, name)
-              send("#{time_field}=".to_sym, read_attribute("#{time_field}_utc"))
+              send("#{time_field}=".to_sym, send("#{time_field}_utc"))
 
               greenwich_time_fields_converted["#{time_field}_utc"] = true
             end
@@ -80,7 +80,7 @@ module Greenwich
   private
     def greenwich_time_field_needs_conversion?(time_field, time_zone_field)
       (send("#{time_zone_field}_was".to_sym).nil? || send("#{time_field}_utc_was").nil?) &&
-        read_attribute("#{time_field}_utc").present? &&
+        send("#{time_field}_utc").present? &&
         self.greenwich_time_fields_converted["#{time_field}_utc"].nil?
     end
   end
