@@ -15,7 +15,7 @@ module Greenwich
         define_method "#{time_field}_utc=" do |value|
           greenwich_time_fields_converted["#{time_field}_utc"] = true
 
-          super(value)
+          write_attribute("#{time_field}_utc", value)
         end
 
         define_method time_field do

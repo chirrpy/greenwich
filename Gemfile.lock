@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    greenwich (2.0.2)
+    greenwich (2.0.3)
       activerecord (~> 3.0)
       activesupport (~> 3.0)
       tzinfo (~> 0.3)
