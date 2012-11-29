@@ -182,14 +182,24 @@ describe Greenwich::Conversion do
         before { model.time_zone = nil }
 
         context 'and the time field is set' do
-          before { model.started_at = Time.utc(2012, 1, 2, 12, 59, 1) }
+          before { model.started_at = Time.find_zone('Alaska').local(2012, 1, 2, 12, 59, 1) }
 
-          it 'the time field is not adjusted' do
+          it 'the time field is adjusted' do
+            model.started_at.should eql Time.utc(2012, 1, 2, 12, 59, 1)
             raw_time_field.should eql Time.utc(2012, 1, 2, 12, 59, 1)
           end
 
           it 'needs to be converted' do
             model.send(:greenwich_time_field_needs_conversion?, 'started_at', 'time_zone').should be_true
+          end
+
+          context 'and then the time zone is set' do
+            before { model.time_zone = 'Hawaii' }
+
+            it 'reflects the local time zone' do
+              model.started_at.should eql Time.find_zone('Hawaii').local(2012, 1, 2, 12, 59, 1)
+              raw_time_field.should eql Time.utc(2012, 1, 2, 22, 59, 1)
+            end
           end
         end
 
