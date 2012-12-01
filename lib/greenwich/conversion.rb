@@ -30,6 +30,7 @@ module Greenwich
           time_zone = Greenwich::Utilities.get_time_zone(self, time_zone_field)
           time      = Greenwich::Utilities.coerce_to_time_without_zone(value)
           time      = ActiveSupport::TimeWithZone.new(nil, time_zone, time) if time && time_zone
+          time      = ActiveSupport::TimeWithZone.new(nil, ActiveSupport::TimeZone.new('UTC'), time) if time && !time_zone
 
           greenwich_time_fields_converted["#{time_field}_utc"] = true unless time_zone.nil?
 
